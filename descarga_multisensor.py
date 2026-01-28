@@ -10,7 +10,7 @@ from datetime import datetime
 # ==================================================
 
 SENTILO_URL = "http://connectaapi.bcn.cat/data"
-TOKEN = "d0191c690e5d577bcb36b5c04f8d4ab2ebd458843743bc9d96b32b5c5b7ed58d"
+TOKEN = os.getenv("SENTILO_TOKEN")
 PROVIDER_ID = "SIGE_PR_0190"
 
 EXCEL_FILE = "Relación sensores AVINYÓ.xls"
@@ -189,3 +189,4 @@ with open("indice_sensores.json", "w", encoding="utf-8") as f:
 
 print("\n✅ DESCARGA COMPLETADA")
 print(f"📁 Sensores válidos: {len(indice_sensores)}")
+
