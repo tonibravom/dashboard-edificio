@@ -13,9 +13,10 @@ EXCEL_PATH = "Relación sensores AVINYÓ.xls"
 INDEX_JSON_PATH = "indice_sensores.json"
 DATA_DIR = "datos_sensores"
 
-# Sentilo
-SENTILO_BASE_URL = "https://api.sentilo.cloud"   # si tu endpoint es otro, cámbialo aquí
+# Sentilo (endpoint correcto)
+SENTILO_BASE_URL = "http://connectaapi.bcn.cat/data"
 SENTILO_TOKEN = os.getenv("SENTILO_TOKEN", "").strip()
+
 
 # Rango de descarga (ejemplo: últimos 2 días)
 DAYS_BACK = 2
@@ -230,3 +231,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+
