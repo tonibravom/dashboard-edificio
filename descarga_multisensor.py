@@ -130,7 +130,8 @@ def sentilo_get_observations(sensor_id: str, from_ts: str = None, limit: int = 2
 
     # Endpoint típico de Sentilo:
     # /data/{provider}/{sensor}
-    url = f"{SENTILO_BASE_URL}/data/{PROVIDER}/{sensor_id}"
+    url = f"{SENTILO_BASE_URL}/{PROVIDER}/{sensor_id}"
+
 
     params = {}
     if limit:
@@ -231,4 +232,5 @@ def main():
 
 if __name__ == "__main__":
     main()
+
 
