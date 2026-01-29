@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -33,7 +34,7 @@ html, body{
   background:var(--bg);
   color:var(--text);
   font-family:var(--font);
-  overflow:hidden; /* ideal para Unreal */
+  overflow:hidden;
 }
 
 /* ====== PANEL LATERAL DERECHO ====== */
@@ -106,7 +107,7 @@ h2{
 }
 
 .kpiValue{
-  font-size: 16px;
+  font-size: 15px;
   font-weight: 900;
   letter-spacing: 0.2px;
   text-shadow: 0 0 14px rgba(46,242,255,0.08);
@@ -279,7 +280,6 @@ canvas{
   padding: 10px;
 }
 
-/* ====== BOTONES EXPORT ====== */
 .exportBtn{
   padding: 6px 10px;
   font-size: 10px;
@@ -297,7 +297,6 @@ canvas{
   box-shadow: 0 0 0 3px rgba(46,242,255,0.10);
 }
 
-/* ====== RESPONSIVE ====== */
 @media (max-width: 980px){
   .hud{
     width: 100vw;
@@ -326,8 +325,9 @@ canvas{
     </div>
 
     <div class="kpiHeader">
-      <div id="energiaHoy" class="kpiValue">--</div>
-      <div id="energiaRef" class="kpiRef">Última actualización: --</div>
+      <div id="energiaHoy" class="kpiValue">Energía total consumida HOY: -- kWh</div>
+      <div id="energiaRef" class="kpiRef">Referencia (10 días laborables): -- kWh</div>
+      <div id="ultimaAct" class="kpiRef">Última actualización: --</div>
     </div>
   </div>
 
@@ -399,7 +399,12 @@ let currentIndex = null;
 
 const INDEX_URL = "indice_sensores.json";
 const DATA_DIR = "datos_sensores";
-const AUTO_REFRESH_MS = 30000; // 30s
+
+// 🔥 Auto-refresh cada 15 minutos
+const AUTO_REFRESH_MS = 15 * 60 * 1000;
+
+// Sensor KPI fijo (energía total consumida)
+const KPI_SENSOR_ID = "0190_MV_C1_ASB_ACTIVEE";
 
 /* ==============================
    ICONO CALENDARIO
@@ -407,7 +412,6 @@ const AUTO_REFRESH_MS = 30000; // 30s
 function openCalendar(inputId) {
   const el = document.getElementById(inputId);
   if (!el) return;
-
   if (typeof el.showPicker === "function") el.showPicker();
   else { el.focus(); el.click(); }
 }
@@ -432,6 +436,11 @@ function endOfDay(dateObj) {
   const d = new Date(dateObj);
   d.setHours(23,59,59,999);
   return d;
+}
+
+function isWeekday(dateObj){
+  const day = dateObj.getDay(); // 0 domingo, 6 sábado
+  return day >= 1 && day <= 5;
 }
 
 function filterByDates(labels, values, dateStart, dateEnd) {
@@ -487,7 +496,9 @@ function aggregateSeries(labels, values, resolution, tipo) {
 
   for (const [key, obj] of map.entries()) {
     outLabels.push(key);
+    // Energía: sumas (kWh intervalo)
     if (tipo === "consumo_intervalo") outValues.push(obj.sum);
+    // Instantáneo: promedio
     else outValues.push(obj.sum / obj.count);
   }
 
@@ -496,14 +507,9 @@ function aggregateSeries(labels, values, resolution, tipo) {
 
 /* ==============================
    MÉTRICAS (SIN MIN/MAX)
-   - Potencia (instantaneo):
-        Actual = último valor
-        Media  = media del periodo
-        Suma   = --
-   - Energía (consumo_intervalo):
-        Actual = suma HOY desde 00:00 hasta última muestra
-        Media  = media diaria (suma total / nº días)
-        Suma   = suma total del periodo
+   Energía:
+     Actual(hoy) = suma desde 00:00
+     Media diaria = media diaria SIN contar hoy
 ================================ */
 function sumEnergyToday(labels, values) {
   if (!labels.length) return 0;
@@ -519,8 +525,22 @@ function sumEnergyToday(labels, values) {
   return sum;
 }
 
+function dailyTotals(labels, values){
+  // Devuelve Map(YYYY-MM-DD -> total)
+  const map = new Map();
+
+  for(let i=0;i<labels.length;i++){
+    const t = new Date(labels[i]);
+    const dayKey = t.toISOString().slice(0,10);
+
+    if(!map.has(dayKey)) map.set(dayKey, 0);
+    map.set(dayKey, map.get(dayKey) + values[i]);
+  }
+  return map;
+}
+
 function calcMetrics(rawLabels, rawValues, tipo) {
-  if (!rawValues.length) return {};
+  if (!rawValues.length) return { actual:null, media:null, suma:null };
 
   const sumaTotal = rawValues.reduce((a, b) => a + b, 0);
 
@@ -529,10 +549,22 @@ function calcMetrics(rawLabels, rawValues, tipo) {
   if (tipo === "consumo_intervalo") {
     actual = sumEnergyToday(rawLabels, rawValues);
 
-    const dias = new Set(rawLabels.map(l => String(l).slice(0, 10))).size;
-    media  = dias ? sumaTotal / dias : 0;
+    // media diaria SIN contar hoy (día incompleto)
+    const totals = dailyTotals(rawLabels, rawValues);
 
-    suma   = sumaTotal;
+    const lastDayKey = new Date(rawLabels[rawLabels.length - 1]).toISOString().slice(0,10);
+
+    let sumDays = 0;
+    let countDays = 0;
+
+    for(const [dayKey, total] of totals.entries()){
+      if(dayKey === lastDayKey) continue; // ❌ excluimos hoy
+      sumDays += total;
+      countDays += 1;
+    }
+
+    media = countDays ? (sumDays / countDays) : null;
+    suma  = sumaTotal;
   } else {
     actual = rawValues[rawValues.length - 1];
     media  = sumaTotal / rawValues.length;
@@ -584,7 +616,7 @@ function drawChart(labels, values, titulo) {
       interaction: { intersect: false, mode: "index" },
       layout: {
         padding: {
-          bottom: 16  /* 👈 esto arregla que se vea el eje X */
+          bottom: 16
         }
       },
       plugins: {
@@ -688,7 +720,7 @@ function exportData(format) {
 }
 
 /* ==============================
-   CARGA REAL (indice + sensor json)
+   FETCH REAL
 ================================ */
 async function fetchJSON(url) {
   const r = await fetch(url, { cache: "no-store" });
@@ -708,9 +740,80 @@ async function loadSensorById(sensorId) {
   const file = currentIndex.sensores[sensorId].archivo;
   const url = `${DATA_DIR}/${file}?t=${Date.now()}`;
 
-  currentSensorData = await fetchJSON(url);
+  return await fetchJSON(url);
 }
 
+/* ==============================
+   KPI: Energía total consumida HOY
+   - referencia: media últimos 10 días laborables completos (sin hoy)
+================================ */
+function computeReference10Workdays(labels, values){
+  // totals por día
+  const totals = dailyTotals(labels, values);
+
+  // ordenamos días descendente
+  const days = Array.from(totals.keys()).sort((a,b)=> b.localeCompare(a));
+
+  // excluimos hoy (día del último dato)
+  const lastDayKey = new Date(labels[labels.length - 1]).toISOString().slice(0,10);
+
+  let used = 0;
+  let sum = 0;
+
+  for(const dayKey of days){
+    if(dayKey === lastDayKey) continue; // fuera hoy
+    const dayDate = new Date(dayKey + "T00:00:00");
+    if(!isWeekday(dayDate)) continue; // solo L-V
+
+    sum += totals.get(dayKey);
+    used += 1;
+
+    if(used >= 10) break;
+  }
+
+  return used ? (sum / used) : null;
+}
+
+async function updateKPIEnergia(){
+  try{
+    const kpiData = await loadSensorById(KPI_SENSOR_ID);
+
+    if(!kpiData?.labels?.length){
+      return;
+    }
+
+    const hoy = sumEnergyToday(kpiData.labels, kpiData.values);
+    const ref = computeReference10Workdays(kpiData.labels, kpiData.values);
+
+    const energiaEl = document.getElementById("energiaHoy");
+    const refEl = document.getElementById("energiaRef");
+    const ultimaEl = document.getElementById("ultimaAct");
+
+    energiaEl.textContent = `Energía total consumida HOY: ${hoy.toFixed(2)} kWh`;
+
+    if(ref === null){
+      refEl.textContent = `Referencia (10 días laborables): -- kWh`;
+      energiaEl.classList.remove("ok","bad");
+      energiaEl.classList.add("ok");
+    }else{
+      refEl.textContent = `Referencia (10 días laborables): ${ref.toFixed(2)} kWh`;
+
+      energiaEl.classList.remove("ok","bad");
+      if(hoy > ref) energiaEl.classList.add("bad");
+      else energiaEl.classList.add("ok");
+    }
+
+    const last = new Date(kpiData.labels[kpiData.labels.length - 1]);
+    ultimaEl.textContent = `Última actualización: ${last.toLocaleString("es-ES")}`;
+
+  }catch(e){
+    console.warn("KPI energía error:", e);
+  }
+}
+
+/* ==============================
+   UI
+================================ */
 function setDefaultLast2Days() {
   const now = new Date();
   const end = toISODateLocal(now);
@@ -718,21 +821,6 @@ function setDefaultLast2Days() {
 
   document.getElementById("dateStart").value = toISODateLocal(start);
   document.getElementById("dateEnd").value = end;
-}
-
-function updateHeaderInfo() {
-  if (!currentSensorData?.labels?.length) return;
-
-  const last = new Date(currentSensorData.labels[currentSensorData.labels.length - 1]);
-  const lastText = last.toLocaleString("es-ES");
-
-  const elValor = document.getElementById("energiaHoy");
-  const elRef = document.getElementById("energiaRef");
-
-  elValor.textContent = `Sensor: ${currentSensorData.sensor_id}`;
-  elRef.textContent = `Última actualización: ${lastText}`;
-  elValor.classList.remove("ok", "bad");
-  elValor.classList.add("ok");
 }
 
 function redraw() {
@@ -757,17 +845,15 @@ function redraw() {
   );
 
   if (!aggregated.values.length) {
-    renderMetrics({}, currentSensorData.unidad, currentSensorData.tipo_dato);
+    renderMetrics({ actual:null, media:null, suma:null }, currentSensorData.unidad, currentSensorData.tipo_dato);
     return;
   }
 
   drawChart(aggregated.labels, aggregated.values, currentSensorData.descripcion);
 
-  // Métricas se calculan sobre RAW filtrado (no agregado) para que energía "Actual(hoy)" sea correcta
+  // métricas sobre RAW filtrado (energía hoy correcto)
   const m = calcMetrics(filtered.outLabels, filtered.outValues, currentSensorData.tipo_dato);
   renderMetrics(m, currentSensorData.unidad, currentSensorData.tipo_dato);
-
-  updateHeaderInfo();
 }
 
 async function initUI() {
@@ -788,7 +874,7 @@ async function initUI() {
   document.getElementById("resolutionSelect").value = "15m";
 
   select.onchange = async () => {
-    await loadSensorById(select.value);
+    currentSensorData = await loadSensorById(select.value);
     redraw();
   };
 
@@ -797,9 +883,12 @@ async function initUI() {
   document.getElementById("resolutionSelect").onchange = redraw;
 
   if (select.value) {
-    await loadSensorById(select.value);
+    currentSensorData = await loadSensorById(select.value);
     redraw();
   }
+
+  // KPI inicial
+  await updateKPIEnergia();
 }
 
 async function autoRefreshLoop() {
@@ -808,13 +897,16 @@ async function autoRefreshLoop() {
 
     await loadIndex();
 
-    // si el sensor seleccionado sigue existiendo, recargamos sus datos
+    // refrescar sensor seleccionado
     if (currentSelected) {
-      await loadSensorById(currentSelected);
+      currentSensorData = await loadSensorById(currentSelected);
       redraw();
     }
 
-    // efecto "LIVE" parpadeo leve
+    // refrescar KPI energía total
+    await updateKPIEnergia();
+
+    // efecto live
     const dot = document.getElementById("liveDot");
     dot.style.opacity = "0.35";
     setTimeout(() => dot.style.opacity = "1", 150);
