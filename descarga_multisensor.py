@@ -42,14 +42,25 @@ def normalizar(texto):
     return "".join(c for c in texto if unicodedata.category(c) != "Mn")
 
 
-def es_energia(descripcion):
-    t = normalizar(descripcion)
-    return "energia" in t or "energy" in t
+def es_energia(sensor_id: str, descripcion: str) -> bool:
+    """
+    Reglas:
+    - sensor_id empieza por 0190_MV_
+    - o descripcion contiene "energia"
+    """
+    sid = str(sensor_id).strip().upper()
+    desc = normalizar(descripcion)
+
+    if sid.startswith("0190_MV_"):
+        return True
+    if "energia" in desc or "energy" in desc:
+        return True
+    return False
 
 
-def tipo_dato_por_desc(descripcion):
-    # si quieres que energía sea "media diaria", aquí lo marcamos:
-    return "media_diaria" if es_energia(descripcion) else "instantaneo"
+def tipo_dato_por_sensor(sensor_id: str, descripcion: str) -> str:
+    # esto es solo metadata para el dashboard
+    return "consumo_intervalo" if es_energia(sensor_id, descripcion) else "instantaneo"
 
 
 def parse_timestamp(ts):
@@ -62,18 +73,27 @@ def parse_timestamp(ts):
         return ts
 
 
-def parse_value(descripcion, value_raw):
+def parse_value(sensor_id: str, descripcion: str, value_raw: str):
     """
-    Tú dijiste: "como dato del sensor, solo necesito el avg"
-    Entonces SIEMPRE intentamos summary.avg
+    - Energía -> lastvalue - firstvalue
+    - Resto -> avg
     """
     try:
         data = json.loads(value_raw)
         summary = data.get("summary", {})
+
+        if es_energia(sensor_id, descripcion):
+            if "firstvalue" in summary and "lastvalue" in summary:
+                return float(summary["lastvalue"]) - float(summary["firstvalue"])
+            return None
+
+        # no energía
         if "avg" in summary:
             return float(summary["avg"])
-    except:
+
+    except Exception:
         pass
+
     return None
 
 
@@ -116,7 +136,7 @@ for _, row in df.iterrows():
     url = f"{SENTILO_URL}/{PROVIDER_ID}/{sensor_id}"
     params = {
         "limit": LIMIT,
-        "order": "desc"   # 🔥 CLAVE para que devuelva lecturas recientes
+        "order": "desc"   # importante: lecturas recientes
     }
 
     try:
@@ -142,7 +162,7 @@ for _, row in df.iterrows():
         if not ts or not raw:
             continue
 
-        value = parse_value(descripcion, raw)
+        value = parse_value(sensor_id, descripcion, raw)
         if value is None:
             continue
 
@@ -161,7 +181,7 @@ for _, row in df.iterrows():
         "sensor_id": sensor_id,
         "descripcion": descripcion,
         "unidad": unidad,
-        "tipo_dato": tipo_dato_por_desc(descripcion),
+        "tipo_dato": tipo_dato_por_sensor(sensor_id, descripcion),
         "labels": labels,
         "values": values
     }
@@ -174,7 +194,7 @@ for _, row in df.iterrows():
     indice_sensores[sensor_id] = {
         "descripcion": descripcion,
         "unidad": unidad,
-        "tipo_dato": tipo_dato_por_desc(descripcion),
+        "tipo_dato": tipo_dato_por_sensor(sensor_id, descripcion),
         "archivo": filename
     }
 
@@ -194,3 +214,4 @@ with open(INDEX_JSON, "w", encoding="utf-8") as f:
 
 print("\n✅ DESCARGA COMPLETADA")
 print(f"📁 Sensores válidos: {len(indice_sensores)}")
+
