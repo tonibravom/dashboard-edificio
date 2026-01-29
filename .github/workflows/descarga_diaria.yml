@@ -2,7 +2,7 @@ name: Descarga diaria sensores
 
 on:
   schedule:
-    - cron: "0 1 * * *"   # 01:00 UTC
+    - cron: "*/15 * * * *"   # cada 15 minutos
   workflow_dispatch:
 
 permissions:
@@ -32,22 +32,6 @@ jobs:
         run: |
           python descarga_multisensor.py
 
-      - name: Generate index.json
-        run: |
-          python - << 'PY'
-          import os, json
-
-          files = [f for f in os.listdir(".") if f.endswith(".json") and f != "index.json"]
-          files.sort()
-
-          sensores = [{"id": f.replace(".json",""), "file": f} for f in files]
-
-          with open("index.json","w",encoding="utf-8") as out:
-              json.dump({"sensores": sensores}, out, ensure_ascii=False, indent=2)
-
-          print("index.json generado con", len(sensores), "sensores")
-          PY
-
       - name: Commit and push changes
         run: |
           git config user.name "github-actions[bot]"
@@ -55,3 +39,4 @@ jobs:
           git add -A
           git commit -m "Auto update sensores" || echo "No changes to commit"
           git push
+
