@@ -1,192 +1,232 @@
 import os
 import json
+import time
 import requests
 import pandas as pd
-import unicodedata
-from datetime import datetime
+from datetime import datetime, timezone
 
-# ==================================================
-# CONFIGURACIÓN
-# ==================================================
+# ==========================================================
+# CONFIG
+# ==========================================================
+PROVIDER = "SIGE_PR_0190"
+EXCEL_PATH = "Relación sensores AVINYÓ.xls"
+INDEX_JSON_PATH = "indice_sensores.json"
+DATA_DIR = "datos_sensores"
 
-SENTILO_URL = "http://connectaapi.bcn.cat/data"
-TOKEN = os.getenv("SENTILO_TOKEN")
-PROVIDER_ID = "SIGE_PR_0190"
+# Sentilo
+SENTILO_BASE_URL = "https://api.sentilo.cloud"   # si tu endpoint es otro, cámbialo aquí
+SENTILO_TOKEN = os.getenv("SENTILO_TOKEN", "").strip()
 
-EXCEL_FILE = "Relación sensores AVINYÓ.xls"
-DATA_FOLDER = "datos_sensores"
+# Rango de descarga (ejemplo: últimos 2 días)
+DAYS_BACK = 2
 
-os.makedirs(DATA_FOLDER, exist_ok=True)
+# ==========================================================
+# UTILIDADES
+# ==========================================================
+def ensure_dir(path: str):
+    os.makedirs(path, exist_ok=True)
 
-HEADERS = {
-    "IDENTITY_KEY": TOKEN,
-    "Accept": "application/json"
-}
+def now_iso():
+    return datetime.now(timezone.utc).replace(microsecond=0).isoformat()
 
-print("=" * 70)
-print(" DESCARGA SENSORES SENTILO → DASHBOARD HTML ")
-print("=" * 70)
-
-# ==================================================
-# FUNCIONES AUXILIARES
-# ==================================================
-
-def normalizar(texto):
-    texto = texto.lower()
-    texto = unicodedata.normalize("NFD", texto)
-    return "".join(c for c in texto if unicodedata.category(c) != "Mn")
-
-
-def es_energia(descripcion):
+def read_excel_sensors(excel_path: str):
     """
-    Detecta sensores de energía independientemente de idioma o tildes
+    Lee el Excel y devuelve lista de sensores con:
+    sensor_id, descripcion, unidad, tipo_dato
     """
-    t = normalizar(descripcion)
-    return "energia" in t or "energy" in t
+    df = pd.read_excel(excel_path)
 
+    # Normaliza nombres de columnas
+    df.columns = [c.strip().lower() for c in df.columns]
 
-def tipo_dato(descripcion):
-    return "consumo_intervalo" if es_energia(descripcion) else "instantaneo"
+    # ⚠️ AJUSTE AUTOMÁTICO: intentamos detectar columnas típicas
+    # Si tu excel usa otros nombres exactos, dímelo y lo adapto.
+    possible_id = ["sensor_id", "sensor", "id", "sensorid"]
+    possible_desc = ["descripcion", "descripción", "description", "desc"]
+    possible_unit = ["unidad", "unit", "units"]
+    possible_type = ["tipo_dato", "tipo", "type"]
 
+    def pick_col(possibles):
+        for c in possibles:
+            if c in df.columns:
+                return c
+        return None
 
-def parse_timestamp(ts):
-    try:
-        return datetime.strptime(ts, "%d/%m/%YT%H:%M:%S").isoformat()
-    except:
-        return ts
+    col_id = pick_col(possible_id)
+    col_desc = pick_col(possible_desc)
+    col_unit = pick_col(possible_unit)
+    col_type = pick_col(possible_type)
 
+    if not col_id:
+        raise ValueError(f"No encuentro columna de ID sensor en el Excel. Columnas: {list(df.columns)}")
 
-def parse_value(descripcion, value_raw):
+    # si faltan, ponemos valores por defecto
+    if not col_desc:
+        df["descripcion"] = df[col_id].astype(str)
+        col_desc = "descripcion"
+
+    if not col_unit:
+        df["unidad"] = ""
+        col_unit = "unidad"
+
+    if not col_type:
+        df["tipo_dato"] = "instantaneo"
+        col_type = "tipo_dato"
+
+    sensores = []
+    for _, row in df.iterrows():
+        sensor_id = str(row[col_id]).strip()
+        if not sensor_id or sensor_id.lower() == "nan":
+            continue
+
+        sensores.append({
+            "sensor_id": sensor_id,
+            "descripcion": str(row[col_desc]).strip(),
+            "unidad": str(row[col_unit]).strip(),
+            "tipo_dato": str(row[col_type]).strip(),
+        })
+
+    return sensores
+
+def generar_indice_sensores(excel_path=EXCEL_PATH, output_json=INDEX_JSON_PATH):
+    sensores_excel = read_excel_sensors(excel_path)
+
+    sensores = {}
+    for s in sensores_excel:
+        sid = s["sensor_id"]
+        sensores[sid] = {
+            "descripcion": s["descripcion"],
+            "unidad": s["unidad"],
+            "tipo_dato": s["tipo_dato"],
+            "archivo": f"{sid}.json"
+        }
+
+    indice = {
+        "generado": datetime.now().isoformat(),
+        "provider": PROVIDER,
+        "sensores": sensores
+    }
+
+    with open(output_json, "w", encoding="utf-8") as f:
+        json.dump(indice, f, ensure_ascii=False, indent=2)
+
+    print(f"✅ indice_sensores.json actualizado con {len(sensores)} sensores")
+
+def sentilo_get_observations(sensor_id: str, from_ts: str = None, limit: int = 2000):
     """
-    REGLA DEFINITIVA:
-    - Sensores de energía → lastvalue - firstvalue
-    - Resto → avg
+    Descarga observaciones de un sensor Sentilo.
+
+    OJO: según tu API real, quizá el endpoint exacto sea distinto.
+    Si ya te funciona tu script actual, esta función la adaptamos a tu endpoint real.
     """
-    try:
-        data = json.loads(value_raw)
-        summary = data.get("summary", {})
+    if not SENTILO_TOKEN:
+        raise RuntimeError("❌ SENTILO_TOKEN no está definido en variables de entorno.")
 
-        if es_energia(descripcion):
-            if "firstvalue" in summary and "lastvalue" in summary:
-                return float(summary["lastvalue"]) - float(summary["firstvalue"])
-        else:
-            if "avg" in summary:
-                return float(summary["avg"])
+    headers = {
+        "IDENTITY_KEY": SENTILO_TOKEN,
+        "Accept": "application/json"
+    }
 
-    except Exception:
-        pass
+    # Endpoint típico de Sentilo:
+    # /data/{provider}/{sensor}
+    url = f"{SENTILO_BASE_URL}/data/{PROVIDER}/{sensor_id}"
 
-    return None
+    params = {}
+    if limit:
+        params["limit"] = str(limit)
+    if from_ts:
+        params["from"] = from_ts
 
+    r = requests.get(url, headers=headers, params=params, timeout=60)
+    if r.status_code != 200:
+        raise RuntimeError(f"❌ Error Sentilo {r.status_code} sensor={sensor_id}: {r.text[:200]}")
 
-# ==================================================
-# CARGA EXCEL
-# ==================================================
+    return r.json()
 
-df = pd.read_excel(EXCEL_FILE)
-
-COL_SENSOR = "SENSOR / ACTUADOR"
-COL_DESC   = "DESCRIPCIÓ"
-COL_TYPE   = "TIPUS DE DADA"
-COL_UNIT   = "UNITAT DE MESURA"
-
-for col in [COL_SENSOR, COL_DESC, COL_TYPE, COL_UNIT]:
-    if col not in df.columns:
-        raise ValueError(f"❌ Falta columna '{col}' en el Excel")
-
-# ==================================================
-# DESCARGA DE SENSORES
-# ==================================================
-
-indice_sensores = {}
-
-for _, row in df.iterrows():
-
-    if str(row[COL_TYPE]).strip().upper() != "JSON":
-        continue
-
-    sensor_id   = str(row[COL_SENSOR]).strip()
-    descripcion = str(row[COL_DESC]).strip()
-    unidad      = str(row[COL_UNIT]).strip()
-
-    print(f"\n📡 {sensor_id} – {descripcion}")
-
-    url = f"{SENTILO_URL}/{PROVIDER_ID}/{sensor_id}"
-    params = {"limit": 5000, "order": "desc"}
-
-    try:
-        r = requests.get(url, headers=HEADERS, params=params, timeout=30)
-        r.raise_for_status()
-        data = r.json()
-    except Exception as e:
-        print(f"   ❌ Error conexión: {e}")
-        continue
-
-    observations = data.get("observations", [])
-    if not observations:
-        print("   ⚠️ Sin observaciones")
-        continue
-
+def convertir_a_formato_dashboard(sensor_id: str, meta: dict, sentilo_json: dict):
+    """
+    Convierte respuesta Sentilo a tu formato JSON:
+    {
+      sensor_id, descripcion, unidad, tipo_dato,
+      labels: [...], values: [...]
+    }
+    """
     labels = []
     values = []
 
-    for obs in observations:
-        ts = obs.get("timestamp")
-        raw = obs.get("value")
+    # Sentilo suele devolver:
+    # { "observations": [ { "timestamp": "...", "value": "..." }, ... ] }
+    obs = sentilo_json.get("observations", [])
 
-        if not ts or not raw:
+    for o in obs:
+        ts = o.get("timestamp")
+        v = o.get("value")
+
+        if ts is None or v is None:
             continue
 
-        value = parse_value(descripcion, raw)
-        if value is None:
+        try:
+            v = float(v)
+        except:
             continue
 
-        labels.append(parse_timestamp(ts))
-        values.append(float(value))
+        labels.append(ts)
+        values.append(v)
 
-    if not values:
-        print("   ⚠️ Sin valores válidos")
-        continue
+    # Orden por timestamp por seguridad
+    combined = sorted(zip(labels, values), key=lambda x: x[0])
+    labels = [x[0] for x in combined]
+    values = [x[1] for x in combined]
 
-    labels.reverse()
-    values.reverse()
-
-    sensor_json = {
+    return {
         "sensor_id": sensor_id,
-        "descripcion": descripcion,
-        "unidad": unidad,
-        "tipo_dato": tipo_dato(descripcion),
+        "descripcion": meta.get("descripcion", sensor_id),
+        "unidad": meta.get("unidad", ""),
+        "tipo_dato": meta.get("tipo_dato", "instantaneo"),
         "labels": labels,
         "values": values
     }
 
-    filename = f"{sensor_id}.json"
+def main():
+    ensure_dir(DATA_DIR)
 
-    with open(os.path.join(DATA_FOLDER, filename), "w", encoding="utf-8") as f:
-        json.dump(sensor_json, f, indent=2, ensure_ascii=False)
+    # 1) regenerar indice desde Excel
+    generar_indice_sensores(EXCEL_PATH, INDEX_JSON_PATH)
 
-    indice_sensores[sensor_id] = {
-        "descripcion": descripcion,
-        "unidad": unidad,
-        "tipo_dato": tipo_dato(descripcion),
-        "archivo": filename
-    }
+    # 2) cargar índice
+    with open(INDEX_JSON_PATH, "r", encoding="utf-8") as f:
+        indice = json.load(f)
 
-    print(f"   ✅ OK ({len(values)} puntos)")
+    sensores = indice.get("sensores", {})
+    if not sensores:
+        raise RuntimeError("❌ No hay sensores en indice_sensores.json")
 
-# ==================================================
-# ÍNDICE PARA DASHBOARD
-# ==================================================
+    # 3) descargar sensores
+    # from = hace DAYS_BACK días
+    from_dt = datetime.now(timezone.utc) - pd.Timedelta(days=DAYS_BACK)
+    from_ts = from_dt.replace(microsecond=0).isoformat()
 
-indice = {
-    "generado": datetime.now().isoformat(),
-    "provider": PROVIDER_ID,
-    "sensores": indice_sensores
-}
+    print(f"📥 Descargando datos desde: {from_ts}")
+    print(f"📌 Total sensores: {len(sensores)}")
 
-with open("indice_sensores.json", "w", encoding="utf-8") as f:
-    json.dump(indice, f, indent=2, ensure_ascii=False)
+    for i, (sensor_id, meta) in enumerate(sensores.items(), start=1):
+        try:
+            print(f"[{i}/{len(sensores)}] {sensor_id} ...")
 
-print("\n✅ DESCARGA COMPLETADA")
-print(f"📁 Sensores válidos: {len(indice_sensores)}")
+            sentilo_json = sentilo_get_observations(sensor_id, from_ts=from_ts, limit=4000)
 
+            out = convertir_a_formato_dashboard(sensor_id, meta, sentilo_json)
+
+            out_path = os.path.join(DATA_DIR, meta["archivo"])
+            with open(out_path, "w", encoding="utf-8") as f:
+                json.dump(out, f, ensure_ascii=False, indent=2)
+
+            time.sleep(0.2)  # pequeña pausa para no saturar
+
+        except Exception as e:
+            print(f"⚠️ Error con {sensor_id}: {e}")
+
+    print("✅ Descarga completada.")
+
+if __name__ == "__main__":
+    main()
