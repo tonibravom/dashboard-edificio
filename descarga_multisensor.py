@@ -9,7 +9,12 @@ from datetime import datetime
 # CONFIGURACIÓN
 # ==================================================
 SENTILO_URL = "http://connectaapi.bcn.cat/data"
-PROVIDER_ID = "SIGE_PR_0190"
+
+# Provider por defecto (sensores normales edificio)
+PROVIDER_ID_DEFAULT = "SIGE_PR_0190"
+
+# Provider FV (instalación fotovoltaica)
+PROVIDER_ID_FV = "ARKENOVA_0524"
 
 EXCEL_FILE = "Relación sensores AVINYÓ.xls"
 DATA_FOLDER = "datos_sensores"
@@ -19,17 +24,37 @@ LIMIT = 250  # suficiente (192 lecturas aprox)
 
 os.makedirs(DATA_FOLDER, exist_ok=True)
 
-TOKEN = os.getenv("SENTILO_TOKEN", "").strip()
-if not TOKEN:
+# Tokens desde GitHub Secrets
+TOKEN_DEFAULT = os.getenv("SENTILO_TOKEN", "").strip()
+TOKEN_FV = os.getenv("SENTILO_TOKEN_FV", "").strip()
+
+if not TOKEN_DEFAULT:
     raise RuntimeError("❌ SENTILO_TOKEN no está definido en GitHub Secrets.")
 
-HEADERS = {
-    "IDENTITY_KEY": TOKEN,
-    "Accept": "application/json"
+if not TOKEN_FV:
+    print("⚠️ AVISO: SENTILO_TOKEN_FV no está definido. Los sensores FV fallarán si existen en el Excel.")
+
+HEADERS_DEFAULT = {
+    "IDENTITY_KEY": TOKEN_DEFAULT,
+    "Accept": "application/json",
+    "User-Agent": "dashboard-edificio/1.0"
+}
+
+HEADERS_FV = {
+    "IDENTITY_KEY": TOKEN_FV,
+    "Accept": "application/json",
+    "User-Agent": "dashboard-edificio/1.0"
+}
+
+# Sensores FV concretos
+FV_SENSORS = {
+    "0524_HV_IRRAD",
+    "0524_HV_TEMP_EXT",
+    "0525_MV_FVENERGIA"
 }
 
 print("=" * 70)
-print(" DESCARGA SENSORES SENTILO → DASHBOARD HTML ")
+print(" DESCARGA SENSORES SENTILO → DASHBOARD HTML (DEFAULT + FV) ")
 print("=" * 70)
 
 # ==================================================
@@ -42,24 +67,35 @@ def normalizar(texto):
     return "".join(c for c in texto if unicodedata.category(c) != "Mn")
 
 
+def es_sensor_fv(sensor_id: str) -> bool:
+    sid = str(sensor_id).strip().upper()
+    return sid in FV_SENSORS
+
+
 def es_energia(sensor_id: str, descripcion: str) -> bool:
     """
     Reglas:
     - sensor_id empieza por 0190_MV_
     - o descripcion contiene "energia"
+    - o sensor_id == 0525_MV_FVENERGIA (FV energía producida)
     """
     sid = str(sensor_id).strip().upper()
     desc = normalizar(descripcion)
 
     if sid.startswith("0190_MV_"):
         return True
+
+    if sid == "0525_MV_FVENERGIA":
+        return True
+
     if "energia" in desc or "energy" in desc:
         return True
+
     return False
 
 
 def tipo_dato_por_sensor(sensor_id: str, descripcion: str) -> str:
-    # esto es solo metadata para el dashboard
+    # metadata para el dashboard
     return "consumo_intervalo" if es_energia(sensor_id, descripcion) else "instantaneo"
 
 
@@ -97,6 +133,18 @@ def parse_value(sensor_id: str, descripcion: str, value_raw: str):
     return None
 
 
+def sentilo_request(provider_id: str, sensor_id: str, headers: dict):
+    url = f"{SENTILO_URL}/{provider_id}/{sensor_id}"
+    params = {
+        "limit": LIMIT,
+        "order": "desc"
+    }
+
+    r = requests.get(url, headers=headers, params=params, timeout=30)
+    r.raise_for_status()
+    return r.json()
+
+
 # ==================================================
 # CARGA EXCEL (nuevo formato)
 # ==================================================
@@ -131,18 +179,20 @@ for _, row in df.iterrows():
     if col_type and tipo_excel != "JSON":
         continue
 
-    print(f"\n📡 {sensor_id} – {descripcion}")
+    # Decide provider + token según sensor
+    if es_sensor_fv(sensor_id):
+        provider_id = PROVIDER_ID_FV
+        headers = HEADERS_FV
+        origen = "FV"
+    else:
+        provider_id = PROVIDER_ID_DEFAULT
+        headers = HEADERS_DEFAULT
+        origen = "DEFAULT"
 
-    url = f"{SENTILO_URL}/{PROVIDER_ID}/{sensor_id}"
-    params = {
-        "limit": LIMIT,
-        "order": "desc"   # importante: lecturas recientes
-    }
+    print(f"\n📡 {sensor_id} – {descripcion}  [{origen}]")
 
     try:
-        r = requests.get(url, headers=HEADERS, params=params, timeout=30)
-        r.raise_for_status()
-        data = r.json()
+        data = sentilo_request(provider_id, sensor_id, headers)
     except Exception as e:
         print(f"   ❌ Error conexión: {e}")
         continue
@@ -205,7 +255,8 @@ for _, row in df.iterrows():
 # ==================================================
 indice = {
     "generado": datetime.now().isoformat(),
-    "provider": PROVIDER_ID,
+    "provider_default": PROVIDER_ID_DEFAULT,
+    "provider_fv": PROVIDER_ID_FV,
     "sensores": indice_sensores
 }
 
@@ -214,4 +265,6 @@ with open(INDEX_JSON, "w", encoding="utf-8") as f:
 
 print("\n✅ DESCARGA COMPLETADA")
 print(f"📁 Sensores válidos: {len(indice_sensores)}")
+
+
 
