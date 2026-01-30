@@ -8,6 +8,10 @@ on:
 permissions:
   contents: write
 
+concurrency:
+  group: descarga-sensores
+  cancel-in-progress: true
+
 jobs:
   run:
     runs-on: ubuntu-latest
