@@ -1,5 +1,6 @@
 {
-  "generado": "2026-02-02T18:48:29.881294",
+  "generado": "2026-02-02T23:57:21.061924",
+  "provider": "SIGE_PR_0190",
   "sensores": {
     "0190_MV_C1_ASB_ACTIVEE": {
       "descripcion": "Energia importada",
