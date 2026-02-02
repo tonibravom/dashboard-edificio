@@ -1,7 +1,5 @@
 {
-  "generado": "2026-02-02T14:27:36.447052",
-  "provider_default": "SIGE_PR_0190",
-  "provider_fv": "ARKENOVA_0524",
+  "generado": "2026-02-02T14:43:40.592343",
   "sensores": {
     "0190_MV_C1_ASB_ACTIVEE": {
       "descripcion": "Energia importada",
