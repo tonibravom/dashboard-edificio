@@ -50,7 +50,7 @@ HEADERS_FV = {
 FV_SENSORS = {
     "0524_HV_IRRAD",
     "0524_HV_TEMP_EXT",
-    "0525_MV_FVENERGIA"
+    "0524_MV_FVENERGIA"
 }
 
 print("=" * 70)
@@ -85,7 +85,7 @@ def es_energia(sensor_id: str, descripcion: str) -> bool:
     if sid.startswith("0190_MV_"):
         return True
 
-    if sid == "0525_MV_FVENERGIA":
+    if sid == "0524_MV_FVENERGIA":
         return True
 
     if "energia" in desc or "energy" in desc:
@@ -265,3 +265,4 @@ with open(INDEX_JSON, "w", encoding="utf-8") as f:
 
 print("\n✅ DESCARGA COMPLETADA")
 print(f"📁 Sensores válidos: {len(indice_sensores)}")
+
