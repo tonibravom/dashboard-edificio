@@ -1,6 +1,6 @@
 {
   "sensor_id": "0190_MV_C41_CGEM21_EACTIVA",
-  "descripcion": "Planta 4 Clima Energia activa",
+  "descripcion": "Clima (P4) Energia activa",
   "unidad": "kWh",
   "tipo_dato": "consumo_intervalo",
   "labels": [

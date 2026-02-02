@@ -1,6 +1,6 @@
 {
   "sensor_id": "0190_HV_C41_CGEM21_PACTIV",
-  "descripcion": "Planta 4 Clima Potencia activa",
+  "descripcion": "Clima (P4) Potencia activa",
   "unidad": "kW",
   "tipo_dato": "instantaneo",
   "labels": [
