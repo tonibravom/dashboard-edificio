@@ -1,5 +1,5 @@
 {
-  "generado": "2026-02-02T14:01:50.696352",
+  "generado": "2026-02-02T14:16:45.097682",
   "provider_default": "SIGE_PR_0190",
   "provider_fv": "ARKENOVA_0524",
   "sensores": {
@@ -284,6 +284,12 @@
       "unidad": "°C",
       "tipo_dato": "instantaneo",
       "archivo": "0190_HV_S5_STPRO_TEMP.json"
+    },
+    "0524_MV_FVENERGIA": {
+      "descripcion": "Energia producida por la ISFV",
+      "unidad": "kWh",
+      "tipo_dato": "consumo_intervalo",
+      "archivo": "0524_MV_FVENERGIA.json"
     },
     "0524_HV_TEMP_EXT": {
       "descripcion": "Tª exterior",
