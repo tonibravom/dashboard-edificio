@@ -1,5 +1,5 @@
 {
-  "generado": "2026-02-02T15:00:32.772253",
+  "generado": "2026-02-02T15:16:02.113854",
   "sensores": {
     "0190_MV_C1_ASB_ACTIVEE": {
       "descripcion": "Energia importada",
@@ -300,6 +300,12 @@
       "unidad": "W/m2",
       "tipo_dato": "instantaneo",
       "archivo": "0524_HV_IRRAD.json"
+    },
+    "0190_MV_ENERGIA_CONS": {
+      "descripcion": "Energia Total Consumida",
+      "unidad": "kWh",
+      "tipo_dato": "consumo_intervalo",
+      "archivo": "0190_MV_ENERGIA_CONS.json"
     }
   }
 }
