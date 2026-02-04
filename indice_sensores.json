@@ -1,5 +1,5 @@
 {
-  "generado": "2026-02-04T11:50:14.652866",
+  "generado": "2026-02-04T13:03:05.448647",
   "provider": "SIGE_PR_0190",
   "sensores": {
     "0190_MV_C1_ASB_ACTIVEE": {
@@ -81,7 +81,7 @@
       "archivo": "0190_MV_C2_ASB_ACTIVEE.json"
     },
     "0190_HV_C2_ASB_ACTIVEP": {
-      "descripcion": "Clima (P1, P2 y P3) Potencia activa",
+      "descripcion": "Clima Potencia activa",
       "unidad": "kW",
       "tipo_dato": "instantaneo",
       "archivo": "0190_HV_C2_ASB_ACTIVEP.json"
@@ -91,12 +91,6 @@
       "unidad": "kWh",
       "tipo_dato": "consumo_intervalo",
       "archivo": "0190_MV_C41_CGEM21_EACTIVA.json"
-    },
-    "0190_HV_C41_CGEM21_PACTIV": {
-      "descripcion": "Clima (P4) Potencia activa",
-      "unidad": "kW",
-      "tipo_dato": "instantaneo",
-      "archivo": "0190_HV_C41_CGEM21_PACTIV.json"
     },
     "0190_MV_C3_CGEM21_EACTIVA": {
       "descripcion": "Local Energia activa",
@@ -110,23 +104,17 @@
       "tipo_dato": "instantaneo",
       "archivo": "0190_HV_C3_CGEM21_PACTIV.json"
     },
-    "0190_HV_C10_CGEM21_PACTIV": {
-      "descripcion": "Planta 1 Total Potencia activa",
-      "unidad": "kW",
-      "tipo_dato": "instantaneo",
-      "archivo": "0190_HV_C10_CGEM21_PACTIV.json"
-    },
-    "0190_HV_C11_CGEM21_PACTIV": {
-      "descripcion": "Planta 1 Iluminación Potencia activa",
-      "unidad": "kW",
-      "tipo_dato": "instantaneo",
-      "archivo": "0190_HV_C11_CGEM21_PACTIV.json"
-    },
     "0190_MV_C10_CGEM21_EACTIVA": {
       "descripcion": "Planta 1 Total Energia activa",
       "unidad": "kWh",
       "tipo_dato": "consumo_intervalo",
       "archivo": "0190_MV_C10_CGEM21_EACTIVA.json"
+    },
+    "0190_HV_C10_CGEM21_PACTIV": {
+      "descripcion": "Planta 1 Total Potencia activa",
+      "unidad": "kW",
+      "tipo_dato": "instantaneo",
+      "archivo": "0190_HV_C10_CGEM21_PACTIV.json"
     },
     "0190_MV_C11_CGEM21_EACTIVA": {
       "descripcion": "Planta 1 Iluminacion Energia activa",
@@ -134,23 +122,17 @@
       "tipo_dato": "consumo_intervalo",
       "archivo": "0190_MV_C11_CGEM21_EACTIVA.json"
     },
-    "0190_HV_C20_CGEM21_PACTIV": {
-      "descripcion": "Planta 2 Total Potencia activa",
-      "unidad": "kW",
-      "tipo_dato": "instantaneo",
-      "archivo": "0190_HV_C20_CGEM21_PACTIV.json"
-    },
     "0190_MV_C20_CGEM21_EACTIVA": {
       "descripcion": "Planta 2 Total Energia activa",
       "unidad": "kWh",
       "tipo_dato": "consumo_intervalo",
       "archivo": "0190_MV_C20_CGEM21_EACTIVA.json"
     },
-    "0190_HV_C22_CGEM21_PACTIV": {
-      "descripcion": "Planta 2 Iluminación Potencia activa",
+    "0190_HV_C20_CGEM21_PACTIV": {
+      "descripcion": "Planta 2 Total Potencia activa",
       "unidad": "kW",
       "tipo_dato": "instantaneo",
-      "archivo": "0190_HV_C22_CGEM21_PACTIV.json"
+      "archivo": "0190_HV_C20_CGEM21_PACTIV.json"
     },
     "0190_MV_C21_CGEM21_EACTIVA": {
       "descripcion": "Planta 2 Iluminacion Energia activa",
@@ -158,23 +140,17 @@
       "tipo_dato": "consumo_intervalo",
       "archivo": "0190_MV_C21_CGEM21_EACTIVA.json"
     },
-    "0190_HV_C30_CGEM21_PACTIV": {
-      "descripcion": "Planta 3 Total Potencia activa",
-      "unidad": "kW",
-      "tipo_dato": "instantaneo",
-      "archivo": "0190_HV_C30_CGEM21_PACTIV.json"
-    },
     "0190_MV_C30_CGEM21_EACTIVA": {
       "descripcion": "Planta 3 Total Energia activa",
       "unidad": "kWh",
       "tipo_dato": "consumo_intervalo",
       "archivo": "0190_MV_C30_CGEM21_EACTIVA.json"
     },
-    "0190_HV_C31_CGEM21_PACTIV": {
-      "descripcion": "Planta 3 Iluminación Potencia activa",
+    "0190_HV_C30_CGEM21_PACTIV": {
+      "descripcion": "Planta 3 Total Potencia activa",
       "unidad": "kW",
       "tipo_dato": "instantaneo",
-      "archivo": "0190_HV_C31_CGEM21_PACTIV.json"
+      "archivo": "0190_HV_C30_CGEM21_PACTIV.json"
     },
     "0190_MV_C31_CGEM21_EACTIVA": {
       "descripcion": "Planta 3 Iluminacion Energia activa",
@@ -182,23 +158,17 @@
       "tipo_dato": "consumo_intervalo",
       "archivo": "0190_MV_C31_CGEM21_EACTIVA.json"
     },
-    "0190_HV_C40_CGEM21_PACTIV": {
-      "descripcion": "Planta 4 Total Potencia activa",
-      "unidad": "kW",
-      "tipo_dato": "instantaneo",
-      "archivo": "0190_HV_C40_CGEM21_PACTIV.json"
-    },
     "0190_MV_C40_CGEM21_EACTIVA": {
       "descripcion": "Planta 4 Total Energia activa",
       "unidad": "kWh",
       "tipo_dato": "consumo_intervalo",
       "archivo": "0190_MV_C40_CGEM21_EACTIVA.json"
     },
-    "0190_HV_C50_CGEM21_PACTIV": {
-      "descripcion": "Planta 5 Total Potencia activa",
+    "0190_HV_C40_CGEM21_PACTIV": {
+      "descripcion": "Planta 4 Total Potencia activa",
       "unidad": "kW",
       "tipo_dato": "instantaneo",
-      "archivo": "0190_HV_C50_CGEM21_PACTIV.json"
+      "archivo": "0190_HV_C40_CGEM21_PACTIV.json"
     },
     "0190_MV_C50_CGEM21_EACTIVA": {
       "descripcion": "Planta 5 Total Energia activa",
@@ -206,23 +176,11 @@
       "tipo_dato": "consumo_intervalo",
       "archivo": "0190_MV_C50_CGEM21_EACTIVA.json"
     },
-    "0190_HV_C60_CIRCVMMC_PACTIV": {
-      "descripcion": "Planta 5 Cubierta Potencia activa",
+    "0190_HV_C50_CGEM21_PACTIV": {
+      "descripcion": "Planta 5 Total Potencia activa",
       "unidad": "kW",
       "tipo_dato": "instantaneo",
-      "archivo": "0190_HV_C60_CIRCVMMC_PACTIV.json"
-    },
-    "0190_MV_C60_CIRCVMMC_EACTIVA": {
-      "descripcion": "Planta 5 Cubierta Energia activa",
-      "unidad": "kWh",
-      "tipo_dato": "consumo_intervalo",
-      "archivo": "0190_MV_C60_CIRCVMMC_EACTIVA.json"
-    },
-    "0190_MV_C52_CGEM21_EACTIVA": {
-      "descripcion": "Planta 5 Iluminación Energía activa",
-      "unidad": "kWh",
-      "tipo_dato": "consumo_intervalo",
-      "archivo": "0190_MV_C52_CGEM21_EACTIVA.json"
+      "archivo": "0190_HV_C50_CGEM21_PACTIV.json"
     },
     "0190_HV_S1_STPRO_HUM": {
       "descripcion": "Humedad Interior Planta 1",
@@ -230,23 +188,11 @@
       "tipo_dato": "instantaneo",
       "archivo": "0190_HV_S1_STPRO_HUM.json"
     },
-    "0190_HV_S1_STPRO_TEMP": {
-      "descripcion": "Tª ambiente P1",
-      "unidad": "°C",
-      "tipo_dato": "instantaneo",
-      "archivo": "0190_HV_S1_STPRO_TEMP.json"
-    },
     "0190_HV_S2_STPRO_HUM": {
       "descripcion": "Humedad Interior Planta 2",
       "unidad": "%",
       "tipo_dato": "instantaneo",
       "archivo": "0190_HV_S2_STPRO_HUM.json"
-    },
-    "0190_HV_S2_STPRO_TEMP": {
-      "descripcion": "Tª ambiente P2",
-      "unidad": "°C",
-      "tipo_dato": "instantaneo",
-      "archivo": "0190_HV_S2_STPRO_TEMP.json"
     },
     "0190_HV_S3_STPRO_HUM": {
       "descripcion": "Humedad Interior Planta 3",
@@ -254,23 +200,11 @@
       "tipo_dato": "instantaneo",
       "archivo": "0190_HV_S3_STPRO_HUM.json"
     },
-    "0190_HV_S3_STPRO_TEMP": {
-      "descripcion": "Tª ambiente P3",
-      "unidad": "°C",
-      "tipo_dato": "instantaneo",
-      "archivo": "0190_HV_S3_STPRO_TEMP.json"
-    },
     "0190_HV_S4_STPRO_HUM": {
       "descripcion": "Humedad Interior Planta 4",
       "unidad": "%",
       "tipo_dato": "instantaneo",
       "archivo": "0190_HV_S4_STPRO_HUM.json"
-    },
-    "0190_HV_S4_STPRO_TEMP": {
-      "descripcion": "Tª ambiente P4",
-      "unidad": "°C",
-      "tipo_dato": "instantaneo",
-      "archivo": "0190_HV_S4_STPRO_TEMP.json"
     },
     "0190_HV_S5_STPRO_HUM": {
       "descripcion": "Humedad Interior Planta 5",
@@ -278,8 +212,32 @@
       "tipo_dato": "instantaneo",
       "archivo": "0190_HV_S5_STPRO_HUM.json"
     },
+    "0190_HV_S1_STPRO_TEMP": {
+      "descripcion": "Tª ambiente Planta 1",
+      "unidad": "°C",
+      "tipo_dato": "instantaneo",
+      "archivo": "0190_HV_S1_STPRO_TEMP.json"
+    },
+    "0190_HV_S2_STPRO_TEMP": {
+      "descripcion": "Tª ambiente Planta 2",
+      "unidad": "°C",
+      "tipo_dato": "instantaneo",
+      "archivo": "0190_HV_S2_STPRO_TEMP.json"
+    },
+    "0190_HV_S3_STPRO_TEMP": {
+      "descripcion": "Tª ambiente Planta 3",
+      "unidad": "°C",
+      "tipo_dato": "instantaneo",
+      "archivo": "0190_HV_S3_STPRO_TEMP.json"
+    },
+    "0190_HV_S4_STPRO_TEMP": {
+      "descripcion": "Tª ambiente Planta 4",
+      "unidad": "°C",
+      "tipo_dato": "instantaneo",
+      "archivo": "0190_HV_S4_STPRO_TEMP.json"
+    },
     "0190_HV_S5_STPRO_TEMP": {
-      "descripcion": "Tª ambiente P5",
+      "descripcion": "Tª ambiente Planta 5",
       "unidad": "°C",
       "tipo_dato": "instantaneo",
       "archivo": "0190_HV_S5_STPRO_TEMP.json"
@@ -301,12 +259,6 @@
       "unidad": "W/m2",
       "tipo_dato": "instantaneo",
       "archivo": "0524_HV_IRRAD.json"
-    },
-    "0190_MV_ENERGIA_CONS": {
-      "descripcion": "Energia Total Consumida",
-      "unidad": "kWh",
-      "tipo_dato": "consumo_intervalo",
-      "archivo": "0190_MV_ENERGIA_CONS.json"
     }
   }
 }
