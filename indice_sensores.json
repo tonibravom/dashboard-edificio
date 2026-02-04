@@ -1,5 +1,5 @@
 {
-  "generado": "2026-02-04T13:03:05.448647",
+  "generado": "2026-02-04T13:10:16.598068",
   "provider": "SIGE_PR_0190",
   "sensores": {
     "0190_MV_C1_ASB_ACTIVEE": {
@@ -259,6 +259,12 @@
       "unidad": "W/m2",
       "tipo_dato": "instantaneo",
       "archivo": "0524_HV_IRRAD.json"
+    },
+    "0190_MV_ENERGIA_CONS": {
+      "descripcion": "Energia Total Consumida",
+      "unidad": "kWh",
+      "tipo_dato": "consumo_intervalo",
+      "archivo": "0190_MV_ENERGIA_CONS.json"
     }
   }
 }
