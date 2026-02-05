@@ -12,7 +12,7 @@ SENTILO_URL = "http://connectaapi.bcn.cat/data"
 DATA_FOLDER = "datos_sensores"
 INDEX_JSON = "indice_sensores.json"
 
-LIMIT_ENERGIA = 96      # 24h * 4
+LIMIT_ENERGIA = 96      # 24h * 4 (15 min)
 LIMIT_INSTANT = 1
 
 os.makedirs(DATA_FOLDER, exist_ok=True)
@@ -24,11 +24,14 @@ TOKEN_FV  = os.getenv("SENTILO_TOKEN_FV", "").strip()
 if not TOKEN_STD:
     raise RuntimeError("❌ SENTILO_TOKEN no definido")
 
+if not TOKEN_FV:
+    print("⚠️ SENTILO_TOKEN_FV no definido (sensores FV fallarán)")
+
 # ==================================================
 # UTILIDADES
 # ==================================================
 def normalizar(txt):
-    txt = str(txt).lower()
+    txt = str(txt).lower().strip()
     txt = unicodedata.normalize("NFD", txt)
     return "".join(c for c in txt if unicodedata.category(c) != "Mn")
 
@@ -59,7 +62,7 @@ def parse_value(sensor_id, descripcion, raw):
     return None
 
 # ==================================================
-# CARGA EXCEL CONFIG
+# CARGA EXCEL
 # ==================================================
 df = pd.read_excel("Relación sensores AVINYÓ.xls")
 df.columns = [c.strip().lower() for c in df.columns]
@@ -68,22 +71,25 @@ df.columns = [c.strip().lower() for c in df.columns]
 # DESCARGA HEADER
 # ==================================================
 indice = {}
-cache = {}   # para sensores energía
+cache = {}
 
 for _, r in df.iterrows():
 
-    sensor_id = str(r["sensor_id"]).strip()
+    sensor_id = str(r.get("sensor_id", "")).strip()
+    if not sensor_id or sensor_id.lower() == "nan":
+        continue
+
     descripcion = str(r.get("descripcion", sensor_id))
     unidad = str(r.get("unitat de mesura", ""))
 
     provider = str(r.get("provider_id", "")).strip()
-    token_env = str(r.get("token_env", "")).strip()
+    token_env = normalizar(r.get("token_env", ""))
 
     print(f"\n📡 {sensor_id} – {descripcion}")
 
-    # ----------------------------------------------
-    # SENSOR CALCULADO
-    # ----------------------------------------------
+    # ==================================================
+    # SENSOR CALCULADO → ENERGÍA TOTAL CONSUMIDA
+    # ==================================================
     if sensor_id == "0190_MV_ENERGIA_CONS":
         try:
             imp = cache["0190_MV_C1_ASB_ACTIVEE"]
@@ -91,11 +97,11 @@ for _, r in df.iterrows():
 
             n = min(len(imp["values"]), len(fv["values"]))
 
+            labels = imp["labels"][-n:]
             values = [
                 imp["values"][-n+i] + fv["values"][-n+i]
                 for i in range(n)
             ]
-            labels = imp["labels"][-n:]
 
             data = {
                 "sensor_id": sensor_id,
@@ -121,15 +127,27 @@ for _, r in df.iterrows():
             print(f"   ❌ Error cálculo: {e}")
         continue
 
-    # ----------------------------------------------
-    # SELECCIÓN TOKEN / PROVIDER
-    # ----------------------------------------------
-    if provider.lower() == "nan" or not provider:
+    # ==================================================
+    # SENSOR REAL (Sentilo)
+    # ==================================================
+    if not provider or provider.lower() == "nan":
         print("   ⚠️ Sin provider → saltado")
         continue
 
-    token = TOKEN_FV if token_env == "FV" else TOKEN_STD
-    headers = {"IDENTITY_KEY": token, "Accept": "application/json"}
+    # 🔑 SELECCIÓN TOKEN CORRECTA
+    if provider.upper().startswith("ARKENOVA"):
+        token = TOKEN_FV
+    else:
+        token = TOKEN_STD
+
+    if not token:
+        print("   ❌ Token vacío")
+        continue
+
+    headers = {
+        "IDENTITY_KEY": token,
+        "Accept": "application/json"
+    }
 
     limit = LIMIT_ENERGIA if es_energia(sensor_id, descripcion) else LIMIT_INSTANT
 
@@ -192,3 +210,4 @@ with open(INDEX_JSON, "w", encoding="utf-8") as f:
     }, f, indent=2, ensure_ascii=False)
 
 print("\n🚀 HEADER actualizado correctamente")
+
