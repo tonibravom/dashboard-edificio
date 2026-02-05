@@ -6,29 +6,61 @@ import unicodedata
 from datetime import datetime
 
 # ==================================================
-# CONFIGURACIÓN
+# CONFIG
 # ==================================================
 SENTILO_URL = "http://connectaapi.bcn.cat/data"
 DATA_FOLDER = "datos_sensores"
 INDEX_JSON = "indice_sensores.json"
 
-LIMIT_ENERGIA = 96      # 24h * 4 (15 min)
+LIMIT_ENERGIA = 96
 LIMIT_INSTANT = 1
 
 os.makedirs(DATA_FOLDER, exist_ok=True)
 
-# Tokens
 TOKEN_STD = os.getenv("SENTILO_TOKEN", "").strip()
 TOKEN_FV  = os.getenv("SENTILO_TOKEN_FV", "").strip()
 
-if not TOKEN_STD:
-    raise RuntimeError("❌ SENTILO_TOKEN no definido")
+# ==================================================
+# 🔥 SENSORES HEADER (LISTA BLANCA)
+# ==================================================
+HEADER_SENSORS = {
 
-if not TOKEN_FV:
-    print("⚠️ SENTILO_TOKEN_FV no definido (sensores FV fallarán)")
+    # energía base
+    "0190_MV_C1_ASB_ACTIVEE",
+    "0524_MV_FVENERGIA",
+    "0190_MV_CIA_EXPORT",
+    "0190_MV_ENERGIA_CONS",
+
+    # climatización
+    "0190_MV_C2_ASB_ACTIVEE",
+    "0190_MV_C41_CGEM21_EACTIVA",
+
+    # plantas
+    "0190_MV_C10_CGEM21_EACTIVA",
+    "0190_MV_C20_CGEM21_EACTIVA",
+    "0190_MV_C30_CGEM21_EACTIVA",
+    "0190_MV_C40_CGEM21_EACTIVA",
+    "0190_MV_C50_CGEM21_EACTIVA",
+
+    # temperatura / humedad plantas
+    "0190_HV_S1_STPRO_TEMP",
+    "0190_HV_S1_STPRO_HUM",
+    "0190_HV_S2_STPRO_TEMP",
+    "0190_HV_S2_STPRO_HUM",
+    "0190_HV_S3_STPRO_TEMP",
+    "0190_HV_S3_STPRO_HUM",
+    "0190_HV_S4_STPRO_TEMP",
+    "0190_HV_S4_STPRO_HUM",
+    "0190_HV_S5_STPRO_TEMP",
+    "0190_HV_S5_STPRO_HUM",
+
+    # FV ambiente
+    "0524_HV_TEMP_EXT",
+    "0524_HV_IRRAD",
+}
 
 # ==================================================
-# UTILIDADES
+# UTILS
 # ==================================================
 def normalizar(txt):
     txt = str(txt).lower().strip()
@@ -62,87 +94,74 @@ def parse_value(sensor_id, descripcion, raw):
     return None
 
 # ==================================================
-# CARGA EXCEL
+# CARGA EXCEL + FILTRO HEADER
 # ==================================================
 df = pd.read_excel("Relación sensores AVINYÓ.xls")
 df.columns = [c.strip().lower() for c in df.columns]
 
+df = df[df["sensor_id"].isin(HEADER_SENSORS)]
+
 # ==================================================
-# DESCARGA HEADER
+# DESCARGA
 # ==================================================
 indice = {}
 cache = {}
 
 for _, r in df.iterrows():
 
-    sensor_id = str(r.get("sensor_id", "")).strip()
-    if not sensor_id or sensor_id.lower() == "nan":
-        continue
-
+    sensor_id = str(r["sensor_id"]).strip()
     descripcion = str(r.get("descripcion", sensor_id))
     unidad = str(r.get("unitat de mesura", ""))
 
     provider = str(r.get("provider_id", "")).strip()
-    token_env = normalizar(r.get("token_env", ""))
 
     print(f"\n📡 {sensor_id} – {descripcion}")
 
     # ==================================================
-    # SENSOR CALCULADO → ENERGÍA TOTAL CONSUMIDA
+    # SENSOR CALCULADO
     # ==================================================
     if sensor_id == "0190_MV_ENERGIA_CONS":
-        try:
-            imp = cache["0190_MV_C1_ASB_ACTIVEE"]
-            fv  = cache["0524_MV_FVENERGIA"]
 
-            n = min(len(imp["values"]), len(fv["values"]))
+        imp = cache.get("0190_MV_C1_ASB_ACTIVEE")
+        fv  = cache.get("0524_MV_FVENERGIA")
 
-            labels = imp["labels"][-n:]
-            values = [
-                imp["values"][-n+i] + fv["values"][-n+i]
-                for i in range(n)
-            ]
+        if not imp or not fv:
+            print("   ❌ Faltan sensores base")
+            continue
 
-            data = {
-                "sensor_id": sensor_id,
-                "descripcion": descripcion,
-                "unidad": unidad,
-                "tipo_dato": "consumo_intervalo",
-                "labels": labels,
-                "values": values
-            }
+        n = min(len(imp["values"]), len(fv["values"]))
 
-            with open(f"{DATA_FOLDER}/{sensor_id}.json", "w", encoding="utf-8") as f:
-                json.dump(data, f, indent=2, ensure_ascii=False)
+        labels = imp["labels"][-n:]
+        values = [
+            imp["values"][-n+i] + fv["values"][-n+i]
+            for i in range(n)
+        ]
 
-            indice[sensor_id] = {
-                "descripcion": descripcion,
-                "unidad": unidad,
-                "archivo": f"{sensor_id}.json"
-            }
+        data = {
+            "sensor_id": sensor_id,
+            "descripcion": descripcion,
+            "unidad": unidad,
+            "tipo_dato": "consumo_intervalo",
+            "labels": labels,
+            "values": values
+        }
 
-            print(f"   ✅ CALCULADO ({len(values)} puntos)")
+        with open(f"{DATA_FOLDER}/{sensor_id}.json", "w", encoding="utf-8") as f:
+            json.dump(data, f, indent=2, ensure_ascii=False)
 
-        except Exception as e:
-            print(f"   ❌ Error cálculo: {e}")
+        indice[sensor_id] = {
+            "descripcion": descripcion,
+            "unidad": unidad,
+            "archivo": f"{sensor_id}.json"
+        }
+
+        print(f"   ✅ CALCULADO ({len(values)} puntos)")
         continue
 
     # ==================================================
-    # SENSOR REAL (Sentilo)
+    # SENSOR REAL
     # ==================================================
-    if not provider or provider.lower() == "nan":
-        print("   ⚠️ Sin provider → saltado")
-        continue
-
-    # 🔑 SELECCIÓN TOKEN CORRECTA
-    if provider.upper().startswith("ARKENOVA"):
-        token = TOKEN_FV
-    else:
-        token = TOKEN_STD
-
-    if not token:
-        print("   ❌ Token vacío")
-        continue
+    token = TOKEN_FV if provider.upper().startswith("ARKENOVA") else TOKEN_STD
 
     headers = {
         "IDENTITY_KEY": token,
@@ -152,18 +171,15 @@ for _, r in df.iterrows():
     limit = LIMIT_ENERGIA if es_energia(sensor_id, descripcion) else LIMIT_INSTANT
 
     url = f"{SENTILO_URL}/{provider}/{sensor_id}"
-    params = {"limit": limit, "order": "desc"}
 
     try:
-        r = requests.get(url, headers=headers, params=params, timeout=20)
+        r = requests.get(url, headers=headers,
+                         params={"limit": limit, "order": "desc"},
+                         timeout=20)
         r.raise_for_status()
         obs = r.json().get("observations", [])
     except Exception as e:
         print(f"   ❌ Error conexión: {e}")
-        continue
-
-    if not obs:
-        print("   ⚠️ Sin observaciones")
         continue
 
     labels, values = [], []
