@@ -1,5 +1,5 @@
 {
-  "generado": "2026-02-05T17:33:49.895165",
+  "generado": "2026-02-05T18:01:49.158659",
   "sensores": {
     "0190_MV_C1_ASB_ACTIVEE": {
       "descripcion": "Energia importada",
@@ -200,6 +200,26 @@
       "descripcion": "Tª ambiente Planta 5",
       "unidad": "°C",
       "archivo": "0190_HV_S5_STPRO_TEMP.json"
+    },
+    "0524_MV_FVENERGIA": {
+      "descripcion": "Energia producida por la ISFV",
+      "unidad": "kWh",
+      "archivo": "0524_MV_FVENERGIA.json"
+    },
+    "0524_HV_TEMP_EXT": {
+      "descripcion": "Tª exterior",
+      "unidad": "°C",
+      "archivo": "0524_HV_TEMP_EXT.json"
+    },
+    "0524_HV_IRRAD": {
+      "descripcion": "Irradiancia",
+      "unidad": "W/m2",
+      "archivo": "0524_HV_IRRAD.json"
+    },
+    "0190_MV_ENERGIA_CONS": {
+      "descripcion": "Energia total consumida",
+      "unidad": "kWh",
+      "archivo": "0190_MV_ENERGIA_CONS.json"
     }
   }
 }
