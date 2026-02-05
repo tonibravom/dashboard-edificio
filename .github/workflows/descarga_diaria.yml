@@ -35,7 +35,8 @@ jobs:
           SENTILO_TOKEN: ${{ secrets.SENTILO_TOKEN }}
           SENTILO_TOKEN_FV: ${{ secrets.SENTILO_TOKEN_FV }}
         run: |
-          python descarga_multisensor.py
+            python descarga_header.py
+
 
       - name: Commit and push changes
         run: |
