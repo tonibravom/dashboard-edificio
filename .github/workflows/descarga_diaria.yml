@@ -44,4 +44,5 @@ jobs:
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add -A
           git commit -m "Auto update sensores" || echo "No changes to commit"
+          git commit --allow-empty -m "wake workflow"
           git push
