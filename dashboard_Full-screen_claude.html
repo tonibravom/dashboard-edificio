@@ -1,0 +1,1616 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+<meta http-equiv="Pragma" content="no-cache" />
+<meta http-equiv="Expires" content="0" />
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Building Monitor</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<style>
+:root{
+  --bg:#05060a;
+  --panel:#0b1020;
+  --panel2:#0a0f1c;
+  --border: rgba(120, 140, 255, 0.18);
+  --text:#e6eaff;
+  --muted:#9aa4c7;
+
+  --cyan:#2ef2ff;
+  --purple:#8b5cf6;
+  --green:#00e676;
+  --red:#ff3b3b;
+  --yellow:#ffd54a;
+
+  --shadow: 0 0 24px rgba(46, 242, 255, 0.10);
+  --radius:16px;
+  --font: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+}
+
+*{ box-sizing:border-box; }
+
+html, body{
+  margin:0;
+  height:100%;
+  background:var(--bg);
+  color:var(--text);
+  font-family:var(--font);
+  overflow:hidden;
+}
+
+/* ====== LAYOUT FULL SCREEN ====== */
+.app{
+  height: 100dvh;
+  width: 100vw;
+  padding: 12px;
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+  min-height:0;
+}
+
+/* ====== HEADER SUPER COMPACTO ====== */
+.header{
+  background: linear-gradient(135deg, rgba(46,242,255,0.08), rgba(139,92,246,0.06));
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 10px 12px;
+  box-shadow: var(--shadow);
+}
+
+.headerGrid{
+  display:grid;
+  grid-template-columns: minmax(420px, 1fr) 620px;
+  gap:12px;
+  align-items:stretch;
+}
+
+/* Columna izquierda */
+.headerLeft{
+  min-width:0;
+  display:flex;
+  flex-direction:column;
+  gap:8px;
+}
+
+/* Columna derecha */
+.headerRight{
+  min-width:0;
+  display:grid;
+  grid-template-columns: 220px 1fr;
+  gap:10px;
+  align-items:stretch;
+}
+
+/* ====== TITULO ====== */
+.titleRow{
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:10px;
+}
+
+h2{
+  margin:0;
+  font-size: 14px;
+  letter-spacing: 0.6px;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.sub{
+  margin-top: 3px;
+  font-size: 11px;
+  color: var(--muted);
+}
+
+.badge{
+  font-size: 10px;
+  padding: 6px 10px;
+  border-radius: 999px;
+  border: 1px solid rgba(46,242,255,0.22);
+  background: rgba(46,242,255,0.06);
+  color: var(--cyan);
+  white-space: nowrap;
+}
+
+
+/* ====== KPI ====== */
+.kpiHeader{
+  display:flex;
+  flex-direction:column;
+  gap:6px;
+}
+
+.kpiLine{
+  display:flex;
+  align-items:baseline;
+  gap:10px;
+  flex-wrap:wrap;
+}
+
+.kpiValue{
+  font-size: 15px;
+  font-weight: 900;
+  letter-spacing: 0.2px;
+  text-shadow: 0 0 14px rgba(46,242,255,0.08);
+}
+
+.kpiExtra{
+  font-size: 11px;
+  font-weight: 900;
+  color: var(--yellow);
+  opacity: 0.95;
+}
+
+.kpiRef{
+  font-size: 11px;
+  color: var(--muted);
+}
+
+.kpiValue.ok { color: var(--green); }
+.kpiValue.bad { color: var(--red); }
+
+/* ====== BARRAS (MEDIDORES) ====== */
+.barsWrap{
+  display:flex;
+  flex-direction:column;
+  gap:6px;
+}
+
+.barRow{
+  display:flex;
+  align-items:center;
+  gap:10px;
+}
+
+.barLabel{
+  width: 130px;
+  font-size: 10px;
+  color: var(--muted);
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.2px;
+}
+
+.barTrack{
+  flex:1;
+  height: 10px;
+  border-radius: 999px;
+  border: 1px solid rgba(46,242,255,0.12);
+  background: rgba(0,0,0,0.25);
+  overflow:hidden;
+  position:relative;
+}
+
+.barFill{
+  height: 100%;
+  width: 0%;
+  border-radius: 999px;
+  background: rgba(46,242,255,0.85);
+  transition: width 0.35s ease;
+}
+
+.barValue{
+  width: 150px;
+  text-align:right;
+  font-size: 10px;
+  color: var(--text);
+  font-weight: 900;
+}
+
+/* ====== DONUT + LEYENDA (compacto) ====== */
+.donutWrap{
+  border: 1px solid rgba(46,242,255,0.12);
+  border-radius: 14px;
+  background: rgba(3,6,12,0.55);
+  padding: 8px;
+  display:flex;
+  flex-direction:column;
+  gap:6px;
+  min-height: 0;
+}
+
+.donutTitle{
+  font-size: 10px;
+  color: var(--muted);
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.2px;
+}
+
+.donutRow{
+  display:flex;
+  gap:10px;
+  align-items:center;
+  min-height:0;
+}
+
+.donutBox{
+  width: 118px;
+  height: 118px;
+  position: relative;
+  border-radius: 14px;
+  border: 1px solid rgba(46,242,255,0.12);
+  background: rgba(0,0,0,0.20);
+  padding: 0;
+  flex: 0 0 auto;
+}
+
+.donutBox canvas{
+  position:absolute;
+  inset:0;
+  width:100% !important;
+  height:100% !important;
+}
+
+.donutLegend{
+  flex:1;
+  display:flex;
+  flex-direction:column;
+  gap:6px;
+  min-width:0;
+}
+
+.legendItem{
+  font-size: 11px;
+  color: var(--muted);
+  display:flex;
+  align-items:center;
+  gap:8px;
+  min-width:0;
+}
+
+.legendSwatch{
+  width: 10px;
+  height: 10px;
+  border-radius: 3px;
+  border: 1px solid rgba(255,255,255,0.15);
+  flex: 0 0 auto;
+}
+
+.legendItem b{
+  color: var(--text);
+  font-weight: 900;
+}
+
+/* ====== AMBIENTE (compacto y sin romper layout) ====== */
+.envStack{
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+  min-height:0;
+}
+
+.envBlock{
+  border: 1px solid rgba(46,242,255,0.12);
+  border-radius: 14px;
+  padding: 8px;
+  background: rgba(3,6,12,0.55);
+  min-width: 0;
+}
+
+.envTitle{
+  font-size: 10px;
+  color: var(--muted);
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.2px;
+  margin-bottom: 6px;
+  display:flex;
+  align-items:center;
+  gap:8px;
+}
+
+.envGrid{
+  display:grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap:6px;
+}
+
+.envChip{
+  border: 1px solid rgba(46,242,255,0.12);
+  border-radius: 12px;
+  padding: 6px 8px;
+  background: rgba(0,0,0,0.22);
+  min-width: 0;
+}
+
+.envChipTop{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:6px;
+  font-size: 10px;
+  color: var(--muted);
+  font-weight: 900;
+}
+
+.envChipVals{
+  margin-top: 4px;
+  display:flex;
+  flex-direction:column;
+  gap:2px;
+  font-size: 11px;
+  color: var(--text);
+  font-weight: 900;
+}
+
+.envSmall{
+  font-size: 10px;
+  color: var(--muted);
+  font-weight: 700;
+}
+
+.envExtGrid{
+  display:grid;
+  grid-template-columns: 1fr 1fr;
+  gap:6px;
+}
+
+.envChipWide{
+  border: 1px solid rgba(46,242,255,0.12);
+  border-radius: 12px;
+  padding: 8px 10px;
+  background: rgba(0,0,0,0.22);
+}
+
+.envBigVal{
+  font-size: 13px;
+  font-weight: 900;
+  color: var(--text);
+  margin-top: 4px;
+}
+
+/* ====== PANEL ====== */
+.panel{
+  background: linear-gradient(180deg, rgba(10,15,28,0.98), rgba(8,10,18,0.98));
+  border: 1px solid rgba(120, 140, 255, 0.16);
+  border-radius: var(--radius);
+  padding: 12px;
+  box-shadow: 0 0 22px rgba(0,0,0,0.45);
+}
+
+/* ====== GRID PRINCIPAL ====== */
+.grid{
+  flex: 1;
+  min-height: 0;
+  display:grid;
+  grid-template-columns: 420px 1fr;
+  gap:10px;
+}
+
+/* Columna izquierda */
+.sidebar{
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+  min-height:0;
+}
+
+/* Columna derecha */
+.main{
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+  min-height:0;
+}
+
+/* ====== CONTROLES ====== */
+.controls{
+  display:grid;
+  grid-template-columns: 1fr 1fr;
+  gap:10px;
+}
+
+.controls2{
+  margin-top:10px;
+  display:grid;
+  grid-template-columns: 1fr 1fr;
+  gap:10px;
+}
+
+label{
+  font-size:10px;
+  color: var(--muted);
+  display:block;
+  margin-bottom:6px;
+  text-transform: uppercase;
+  letter-spacing:0.3px;
+}
+
+.dateField{
+  position: relative;
+}
+
+.dateField input[type="date"]{
+  width:100%;
+  padding:10px 38px 10px 10px;
+  border-radius: 14px;
+  border: 1px solid rgba(46,242,255,0.18);
+  background: rgba(3,6,12,0.65);
+  color: var(--text);
+  font-size: 12px;
+  outline:none;
+}
+
+.dateField input[type="date"]:focus{
+  border-color: rgba(46,242,255,0.45);
+  box-shadow: 0 0 0 3px rgba(46,242,255,0.10);
+}
+
+.dateIconBtn{
+  position:absolute;
+  top:50%;
+  right:10px;
+  transform: translateY(-50%);
+  width: 26px;
+  height: 26px;
+  border-radius: 10px;
+  border: 1px solid rgba(46,242,255,0.18);
+  background: rgba(46,242,255,0.06);
+  color: var(--cyan);
+  cursor:pointer;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size: 14px;
+}
+
+select{
+  width:100%;
+  padding:10px 10px;
+  border-radius: 14px;
+  border: 1px solid rgba(46,242,255,0.18);
+  background: rgba(3,6,12,0.65);
+  color: var(--text);
+  font-size: 12px;
+  outline:none;
+}
+
+select:focus{
+  border-color: rgba(46,242,255,0.45);
+  box-shadow: 0 0 0 3px rgba(46,242,255,0.10);
+}
+
+/* ====== MÉTRICAS ====== */
+#metrics{
+  display:grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap:8px;
+}
+
+.metric{
+  border: 1px solid rgba(46,242,255,0.12);
+  border-radius: 14px;
+  padding: 10px;
+  background: rgba(3,6,12,0.55);
+}
+
+.metric b{
+  display:block;
+  font-size: 10px;
+  color: var(--muted);
+  font-weight: 700;
+  margin-bottom: 6px;
+  letter-spacing: 0.2px;
+  text-transform: uppercase;
+}
+
+.metric span{
+  font-size: 14px;
+  font-weight: 900;
+}
+
+.metric small{
+  display:block;
+  margin-top: 6px;
+  color: var(--muted);
+  font-size: 10px;
+}
+
+/* ====== CHART ====== */
+.canvasWrap{
+  flex: 1;
+  min-height: 0;
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+  overflow:hidden;
+}
+
+.chartTitle{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  color: var(--muted);
+  font-size: 11px;
+}
+
+.chartBox{
+  flex: 1;
+  min-height: 0;
+  position: relative;
+  overflow:hidden;
+}
+
+canvas#chart{
+  position:absolute;
+  inset:0;
+  width:100% !important;
+  height:100% !important;
+  background: rgba(3,6,12,0.55);
+  border: 1px solid rgba(46,242,255,0.12);
+  border-radius: var(--radius);
+  padding: 10px;
+}
+
+.exportBtn{
+  padding: 6px 10px;
+  font-size: 10px;
+  border-radius: 999px;
+  cursor: pointer;
+  border: 1px solid rgba(46,242,255,0.22);
+  background: rgba(46,242,255,0.06);
+  color: var(--cyan);
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+}
+
+.exportBtn:hover{
+  border-color: rgba(46,242,255,0.45);
+  box-shadow: 0 0 0 3px rgba(46,242,255,0.10);
+}
+
+/* ====== RESPONSIVE ====== */
+@media (max-width: 1250px){
+  html, body{ overflow:auto; }
+  .app{ height:auto; min-height:100vh; }
+  .headerGrid{ grid-template-columns: 1fr; }
+  .headerRight{ grid-template-columns: 1fr; }
+}
+
+@media (max-width: 1100px){
+  .grid{ grid-template-columns: 1fr; }
+  #metrics{ grid-template-columns: repeat(2, 1fr); }
+}
+</style>
+
+<!-- Version: 2026-02-10T18:13:25.482627 - No Cache -->
+</head>
+
+<body>
+
+<div class="app">
+
+  <!-- HEADER -->
+  <div class="header">
+    <div class="headerGrid">
+
+      <!-- LEFT -->
+      <div class="headerLeft">
+        <div class="titleRow">
+          <div>
+            <h2>Building Monitor</h2>
+            <div class="sub">Live telemetry HUD</div>
+          </div>
+          <div class="badge">UNREAL HUD</div>
+        </div>
+
+        
+
+        <!-- KPI -->
+        <div class="kpiHeader">
+          <div class="kpiLine">
+            <div id="energiaHoy" class="kpiValue">Energía total consumida HOY: -- kWh</div>
+            <div id="energiaVertida" class="kpiExtra">Energía vertida a la red: -- kWh</div>
+          </div>
+
+          <!-- BARRAS debajo del KPI -->
+          <div class="barsWrap">
+            <div class="barRow">
+              <div class="barLabel">Climatización</div>
+              <div class="barTrack"><div id="barClima" class="barFill"></div></div>
+              <div id="txtClima" class="barValue">-- kWh (--%)</div>
+            </div>
+
+            <div class="barRow">
+              <div class="barLabel">Plantas</div>
+              <div class="barTrack"><div id="barPlantas" class="barFill"></div></div>
+              <div id="txtPlantas" class="barValue">-- kWh (--%)</div>
+            </div>
+
+            <div class="barRow">
+              <div class="barLabel">Otros</div>
+              <div class="barTrack"><div id="barOtros" class="barFill"></div></div>
+              <div id="txtOtros" class="barValue">-- kWh (--%)</div>
+            </div>
+          </div>
+
+          <div id="energiaRef" class="kpiRef">Referencia (10 días laborables): -- kWh</div>
+          <div id="ultimaAct" class="kpiRef">Última actualización: --</div>
+        </div>
+      </div>
+
+      <!-- RIGHT -->
+      <div class="headerRight">
+
+        <!-- DONUT -->
+        <div class="donutWrap">
+          <div class="donutTitle">Mix consumo HOY</div>
+
+          <div class="donutRow">
+            <div class="donutBox">
+              <canvas id="donutEnergy"></canvas>
+            </div>
+
+            <div class="donutLegend">
+              <div class="legendItem">
+                <span id="swatchImport" class="legendSwatch"></span>
+                <span id="legendImport">Importada: -- kWh (--%)</span>
+              </div>
+
+              <div class="legendItem">
+                <span id="swatchFV" class="legendSwatch"></span>
+                <span id="legendFV">FV (ISFV): -- kWh (--%)</span>
+              </div>
+
+              <div class="legendItem">
+                <span id="legendTotal"><b>Total consumida:</b> -- kWh</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- AMBIENTE -->
+        <div class="envStack">
+
+          <div class="envBlock">
+            <div class="envTitle">🌡️💧 Interior (último) — Plantas 1–5</div>
+            <div class="envGrid">
+              <div class="envChip">
+                <div class="envChipTop"><span>P1</span><span class="envSmall">STPRO</span></div>
+                <div class="envChipVals">
+                  <div id="p1temp">🌡️ -- °C</div>
+                  <div id="p1hum">💧 -- %</div>
+                </div>
+              </div>
+
+              <div class="envChip">
+                <div class="envChipTop"><span>P2</span><span class="envSmall">STPRO</span></div>
+                <div class="envChipVals">
+                  <div id="p2temp">🌡️ -- °C</div>
+                  <div id="p2hum">💧 -- %</div>
+                </div>
+              </div>
+
+              <div class="envChip">
+                <div class="envChipTop"><span>P3</span><span class="envSmall">STPRO</span></div>
+                <div class="envChipVals">
+                  <div id="p3temp">🌡️ -- °C</div>
+                  <div id="p3hum">💧 -- %</div>
+                </div>
+              </div>
+
+              <div class="envChip">
+                <div class="envChipTop"><span>P4</span><span class="envSmall">STPRO</span></div>
+                <div class="envChipVals">
+                  <div id="p4temp">🌡️ -- °C</div>
+                  <div id="p4hum">💧 -- %</div>
+                </div>
+              </div>
+
+              <div class="envChip">
+                <div class="envChipTop"><span>P5</span><span class="envSmall">STPRO</span></div>
+                <div class="envChipVals">
+                  <div id="p5temp">🌡️ -- °C</div>
+                  <div id="p5hum">💧 -- %</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="envBlock">
+            <div class="envTitle">🔋☀️ Exterior + ISFV (último)</div>
+
+            <div class="envExtGrid">
+              <div class="envChipWide">
+                <div class="envChipTop"><span>Exterior</span><span class="envSmall">Tª</span></div>
+                <div id="tempExt" class="envBigVal">🌡️ -- °C</div>
+                <div id="tempExtTs" class="envSmall">--</div>
+              </div>
+
+              <div class="envChipWide">
+                <div class="envChipTop"><span>ISFV</span><span class="envSmall">Irradiancia</span></div>
+                <div id="irrad" class="envBigVal">☀️ -- W/m²</div>
+                <div id="irradTs" class="envSmall">--</div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+
+    </div>
+  </div>
+
+  <!-- GRID -->
+  <div class="grid">
+
+    <!-- SIDEBAR -->
+    <div class="sidebar">
+
+      <!-- CONTROLES -->
+      <div class="panel">
+        <div class="controls">
+          <div>
+            <label>Sensor</label>
+            <select id="sensorSelect"></select>
+          </div>
+
+          <div>
+            <label>Resolución</label>
+            <select id="resolutionSelect">
+              <option value="15m">15 min</option>
+              <option value="1h">Hora</option>
+              <option value="1d">Día</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="controls2">
+          <div>
+            <label>CONSULTA FECHA INICIO</label>
+            <div class="dateField">
+              <input type="date" id="dateStart">
+              <button class="dateIconBtn" type="button" onclick="openCalendar('dateStart')" title="Abrir calendario">📅</button>
+            </div>
+          </div>
+
+          <div>
+            <label>CONSULTA FECHA FINAL</label>
+            <div class="dateField">
+              <input type="date" id="dateEnd">
+              <button class="dateIconBtn" type="button" onclick="openCalendar('dateEnd')" title="Abrir calendario">📅</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- MÉTRICAS -->
+      <div class="panel">
+        <div id="metrics"></div>
+      </div>
+
+    </div>
+
+    <!-- MAIN -->
+    <div class="main">
+
+      <!-- CHART -->
+      <div class="panel canvasWrap">
+        <div class="chartTitle">
+          <div id="chartLabel">Serie temporal</div>
+
+          <div style="display:flex; gap:8px; align-items:center;">
+            <button class="exportBtn" onclick="exportData('csv')">CSV</button>
+            <button class="exportBtn" onclick="exportData('json')">JSON</button>
+            <div style="color: var(--cyan);" id="liveDot">● LIVE</div>
+          </div>
+        </div>
+
+        <div class="chartBox">
+          <canvas id="chart"></canvas>
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+
+</div>
+
+<script>
+let chart = null;
+let donutChart = null;
+
+let currentSensorData = null;
+let currentIndex = null;
+
+const INDEX_URL = "indice_sensores.json";
+const DATA_DIR = "datos_sensores";
+
+// Auto-refresh cada 15 minutos
+const AUTO_REFRESH_MS = 15 * 60 * 1000;
+
+/* ==============================
+   SENSORES KPI / DONUT
+================================ */
+const KPI_SENSOR_ID = "0190_MV_ENERGIA_CONS";
+const SENSOR_VERTIDA_ID = "0190_MV_CIA_EXPORT";
+
+// Donut mix (HOY)
+const SENSOR_IMPORTADA_ID = "0190_MV_C1_ASB_ACTIVEE";
+const SENSOR_FV_ID = "0524_MV_FVENERGIA";
+const SENSOR_TOTAL_CONS_ID = "0190_MV_ENERGIA_CONS";
+
+/* Medidores */
+const SENSOR_CLIMA_A = "0190_MV_C2_ASB_ACTIVEE";
+const SENSOR_CLIMA_B = "0190_MV_C41_CGEM21_EACTIVA";
+
+const SENSOR_PLANTAS = [
+  "0190_MV_C10_CGEM21_EACTIVA",
+  "0190_MV_C20_CGEM21_EACTIVA",
+  "0190_MV_C30_CGEM21_EACTIVA",
+  "0190_MV_C40_CGEM21_EACTIVA",
+  "0190_MV_C50_CGEM21_EACTIVA"
+];
+
+// Ambiente (último valor)
+const PLANT_SENSORS = [
+  { temp: "0190_HV_S1_STPRO_TEMP", hum: "0190_HV_S1_STPRO_HUM", outTemp: "p1temp", outHum: "p1hum" },
+  { temp: "0190_HV_S2_STPRO_TEMP", hum: "0190_HV_S2_STPRO_HUM", outTemp: "p2temp", outHum: "p2hum" },
+  { temp: "0190_HV_S3_STPRO_TEMP", hum: "0190_HV_S3_STPRO_HUM", outTemp: "p3temp", outHum: "p3hum" },
+  { temp: "0190_HV_S4_STPRO_TEMP", hum: "0190_HV_S4_STPRO_HUM", outTemp: "p4temp", outHum: "p4hum" },
+  { temp: "0190_HV_S5_STPRO_TEMP", hum: "0190_HV_S5_STPRO_HUM", outTemp: "p5temp", outHum: "p5hum" }
+];
+
+const SENSOR_TEMP_EXT = "0524_HV_TEMP_EXT";
+const SENSOR_IRRAD = "0524_HV_IRRAD";
+
+
+
+/* ==============================
+   ICONO CALENDARIO
+================================ */
+function openCalendar(inputId) {
+  const el = document.getElementById(inputId);
+  if (!el) return;
+  if (typeof el.showPicker === "function") el.showPicker();
+  else { el.focus(); el.click(); }
+}
+
+/* ==============================
+   FECHAS
+================================ */
+function toISODateLocal(d) {
+  const y = d.getFullYear();
+  const m = String(d.getMonth()+1).padStart(2, "0");
+  const day = String(d.getDate()).padStart(2, "0");
+  return `${y}-${m}-${day}`;
+}
+
+function startOfDay(dateObj) {
+  const d = new Date(dateObj);
+  d.setHours(0,0,0,0);
+  return d;
+}
+
+function endOfDay(dateObj) {
+  const d = new Date(dateObj);
+  d.setHours(23,59,59,999);
+  return d;
+}
+
+function filterByDates(labels, values, dateStart, dateEnd) {
+  const from = startOfDay(new Date(dateStart));
+  const to = endOfDay(new Date(dateEnd));
+
+  const outLabels = [];
+  const outValues = [];
+
+  labels.forEach((l, i) => {
+    const t = new Date(l);
+    if (t >= from && t <= to) {
+      outLabels.push(l);
+      outValues.push(values[i]);
+    }
+  });
+
+  return { outLabels, outValues };
+}
+
+/* ==============================
+   AGREGACIÓN 15m -> hora / día
+================================ */
+function bucketKey(dateObj, resolution) {
+  const y = dateObj.getFullYear();
+  const m = String(dateObj.getMonth()+1).padStart(2, "0");
+  const d = String(dateObj.getDate()).padStart(2, "0");
+  const hh = String(dateObj.getHours()).padStart(2, "0");
+
+  if (resolution === "1d") return `${y}-${m}-${d}`;
+  if (resolution === "1h") return `${y}-${m}-${d} ${hh}:00`;
+  return dateObj.toISOString();
+}
+
+function aggregateSeries(labels, values, resolution, tipo) {
+  if (resolution === "15m") return { labels, values };
+
+  const map = new Map();
+
+  labels.forEach((l, i) => {
+    const t = new Date(l);
+    const key = bucketKey(t, resolution);
+
+    if (!map.has(key)) map.set(key, { sum: 0, count: 0 });
+    const obj = map.get(key);
+
+    obj.sum += values[i];
+    obj.count += 1;
+  });
+
+  const outLabels = [];
+  const outValues = [];
+
+  for (const [key, obj] of map.entries()) {
+    outLabels.push(key);
+    if (tipo === "consumo_intervalo") outValues.push(obj.sum);
+    else outValues.push(obj.sum / obj.count);
+  }
+
+  return { labels: outLabels, values: outValues };
+}
+
+/* ==============================
+   MÉTRICAS
+================================ */
+function sumEnergyToday(labels, values) {
+  if (!labels.length) return 0;
+
+  const lastTs = new Date(labels[labels.length - 1]);
+  const dayStart = startOfDay(lastTs);
+
+  let sum = 0;
+  for (let i = 0; i < labels.length; i++) {
+    const t = new Date(labels[i]);
+    if (t >= dayStart && t <= lastTs) sum += values[i];
+  }
+  return sum;
+}
+
+function dailyTotals(labels, values){
+  const map = new Map();
+
+  for(let i=0;i<labels.length;i++){
+    const t = new Date(labels[i]);
+    const dayKey = t.toISOString().slice(0,10);
+
+    if(!map.has(dayKey)) map.set(dayKey, 0);
+    map.set(dayKey, map.get(dayKey) + values[i]);
+  }
+  return map;
+}
+
+function calcMetrics(rawLabels, rawValues, tipo) {
+  if (!rawValues.length) return { actual:null, media:null, suma:null };
+
+  const sumaTotal = rawValues.reduce((a, b) => a + b, 0);
+
+  let actual, media, suma;
+
+  if (tipo === "consumo_intervalo") {
+    actual = sumEnergyToday(rawLabels, rawValues);
+
+    const totals = dailyTotals(rawLabels, rawValues);
+    const lastDayKey = new Date(rawLabels[rawLabels.length - 1]).toISOString().slice(0,10);
+
+    let sumDays = 0;
+    let countDays = 0;
+
+    for(const [dayKey, total] of totals.entries()){
+      if(dayKey === lastDayKey) continue;
+      sumDays += total;
+      countDays += 1;
+    }
+
+    media = countDays ? (sumDays / countDays) : null;
+    suma  = sumaTotal;
+  } else {
+    actual = rawValues[rawValues.length - 1];
+    media  = sumaTotal / rawValues.length;
+    suma   = null;
+  }
+
+  return { actual, media, suma };
+}
+
+function renderMetrics(m, unidad, tipo) {
+  const fmt = v => (v === null || v === undefined) ? "--" : v.toFixed(2);
+
+  const labelActual = (tipo === "consumo_intervalo") ? "Actual (hoy)" : "Actual";
+  const labelMedia = (tipo === "consumo_intervalo") ? "Media diaria" : "Media";
+
+  document.getElementById("metrics").innerHTML = `
+    <div class="metric"><b>${labelActual}</b><span>${fmt(m.actual)}</span><small>${m.actual != null ? unidad : ""}</small></div>
+    <div class="metric"><b>${labelMedia}</b><span>${fmt(m.media)}</span><small>${m.media != null ? unidad : ""}</small></div>
+    <div class="metric"><b>Suma</b><span>${fmt(m.suma)}</span><small>${m.suma != null ? unidad : ""}</small></div>
+  `;
+}
+
+/* ==============================
+   GRÁFICA
+================================ */
+function drawChart(labels, values, titulo) {
+  const ctx = document.getElementById("chart").getContext("2d");
+  if (chart) chart.destroy();
+
+  document.getElementById("chartLabel").textContent = titulo;
+
+  chart = new Chart(ctx, {
+    type: "line",
+    data: {
+      labels,
+      datasets: [
+        {
+          label: titulo,
+          data: values,
+          borderWidth: 2,
+          fill: false,
+          pointRadius: 0
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      interaction: { intersect: false, mode: "index" },
+      layout: { padding: { bottom: 22 } },
+      plugins: {
+        legend: { labels: { color: "#9aa4c7" } }
+      },
+      scales: {
+        x: {
+          ticks: { color: "#9aa4c7", maxRotation: 0, autoSkip: true },
+          grid: { color: "rgba(120,140,255,0.08)" }
+        },
+        y: {
+          ticks: { color: "#9aa4c7" },
+          grid: { color: "rgba(120,140,255,0.08)" }
+        }
+      }
+    }
+  });
+}
+
+/* ==============================
+   DONUT ENERGÍA HOY
+================================ */
+async function updateDonutMixHoy(){
+
+  try{
+
+    const rImp = await fetch("datos_sensores/0190_MV_C1_ASB_ACTIVEE.json");
+    const rFV  = await fetch("datos_sensores/0524_MV_FVENERGIA.json");
+
+    const impData = await rImp.json();
+    const fvData  = await rFV.json();
+
+    // Estructura correcta según el Python: {labels: [], values: []}
+    function energiaHoy(data){
+
+      if(!data || !data.labels || !data.values || data.labels.length === 0)
+        return 0;
+
+      const today = new Date().toISOString().slice(0,10);
+      
+      let total = 0;
+      
+      // Sumar todos los valores del día de hoy
+      for(let i = 0; i < data.labels.length; i++){
+        if(data.labels[i].startsWith(today)){
+          total += Number(data.values[i]) || 0;
+        }
+      }
+
+      return Math.max(0, total);
+    }
+
+    const energiaImportada = energiaHoy(impData);
+    const energiaFV        = energiaHoy(fvData);
+    
+    // Debug: mostrar valores calculados
+    console.log("🔵 DONUT - Energía Importada:", energiaImportada.toFixed(2), "kWh");
+    console.log("🟢 DONUT - Energía FV (ISFV):", energiaFV.toFixed(2), "kWh");
+    console.log("⚪ DONUT - Total Consumida:", (energiaImportada + energiaFV).toFixed(2), "kWh");
+
+    // Si el gráfico no existe, crearlo primero
+    if (!donutChart) {
+      const total = energiaImportada + energiaFV;
+      drawDonut(energiaImportada, energiaFV, total);
+    } else {
+      // Si ya existe, solo actualizar los datos
+      donutChart.data.datasets[0].data = [
+        energiaImportada,
+        energiaFV
+      ];
+      donutChart.update();
+      
+      // Actualizar también la leyenda
+      const total = energiaImportada + energiaFV;
+      const importPct = pct(energiaImportada, total);
+      const fvPct = pct(energiaFV, total);
+      
+      document.getElementById("legendImport").textContent =
+        `Importada: ${energiaImportada.toFixed(2)} kWh (${importPct.toFixed(1)}%)`;
+      
+      document.getElementById("legendFV").textContent =
+        `FV (ISFV): ${energiaFV.toFixed(2)} kWh (${fvPct.toFixed(1)}%)`;
+      
+      document.getElementById("legendTotal").innerHTML =
+        `<b>Total consumida:</b> ${total.toFixed(2)} kWh`;
+    }
+
+  }catch(e){
+    console.warn("Error updateDonutMixHoy:", e);
+  }
+}
+
+/* ==============================
+   DONUT + LEYENDA
+================================ */
+function pct(part, total){
+  if(!total || total <= 0) return 0;
+  return (part / total) * 100;
+}
+
+function drawDonut(importadaHoy, fvHoy, totalHoy){
+  const ctx = document.getElementById("donutEnergy").getContext("2d");
+  if (donutChart) donutChart.destroy();
+
+  const safeImport = Math.max(importadaHoy, 0);
+  const safeFV = Math.max(fvHoy, 0);
+
+  donutChart = new Chart(ctx, {
+    type: "doughnut",
+    data: {
+      labels: ["Importada", "FV (ISFV)"],
+      datasets: [{
+        data: [safeImport, safeFV],
+        backgroundColor: ["#ff3b3b", "#00e676"],
+        borderWidth: 0
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      cutout: "72%",
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          callbacks: {
+            label: (ctx) => {
+              const v = ctx.raw ?? 0;
+              return `${ctx.label}: ${v.toFixed(2)} kWh`;
+            }
+          }
+        }
+      }
+    }
+  });
+
+  const total = safeImport + safeFV;
+
+  const importPct = pct(safeImport, total);
+  const fvPct = pct(safeFV, total);
+
+  const colors = donutChart.data.datasets[0].backgroundColor || [];
+
+  document.getElementById("swatchImport").style.background = colors[0];
+  document.getElementById("swatchFV").style.background = colors[1];
+
+  document.getElementById("legendImport").textContent =
+    `Importada: ${safeImport.toFixed(2)} kWh (${importPct.toFixed(1)}%)`;
+
+  document.getElementById("legendFV").textContent =
+    `FV (ISFV): ${safeFV.toFixed(2)} kWh (${fvPct.toFixed(1)}%)`;
+
+  document.getElementById("legendTotal").innerHTML =
+    `<b>Total consumida:</b> ${(total).toFixed(2)} kWh`;
+}
+
+
+
+
+/* ==============================
+   KPI: Energía total consumida HOY + Vertida
+================================ */
+function computeReference10Workdays(labels, values){
+  const totals = dailyTotals(labels, values);
+  const days = Array.from(totals.keys()).sort((a,b)=> b.localeCompare(a));
+  const lastDayKey = new Date(labels[labels.length - 1]).toISOString().slice(0,10);
+
+  let used = 0;
+  let sum = 0;
+
+  for(const dayKey of days){
+    if(dayKey === lastDayKey) continue;
+    const dayDate = new Date(dayKey + "T00:00:00");
+    if(dayDate.getDay() === 0 || dayDate.getDay() === 6) continue;
+
+    sum += totals.get(dayKey);
+    used += 1;
+    if(used >= 10) break;
+  }
+
+  return used ? (sum / used) : null;
+}
+
+async function updateKPIEnergia(){
+  try{
+    const kpiData = await loadSensorById(KPI_SENSOR_ID);
+    if(!kpiData?.labels?.length) return;
+
+    const hoy = sumEnergyToday(kpiData.labels, kpiData.values);
+    const ref = computeReference10Workdays(kpiData.labels, kpiData.values);
+
+    const energiaEl = document.getElementById("energiaHoy");
+    const refEl = document.getElementById("energiaRef");
+    const ultimaEl = document.getElementById("ultimaAct");
+
+    energiaEl.textContent = `Energía total consumida HOY: ${hoy.toFixed(2)} kWh`;
+
+    if(ref === null){
+      refEl.textContent = `Referencia (10 días laborables): -- kWh`;
+      energiaEl.classList.remove("ok","bad");
+      energiaEl.classList.add("ok");
+    }else{
+      refEl.textContent = `Referencia (10 días laborables): ${ref.toFixed(2)} kWh`;
+      energiaEl.classList.remove("ok","bad");
+      energiaEl.classList.add(hoy > ref ? "bad" : "ok");
+    }
+
+    const last = new Date(kpiData.labels[kpiData.labels.length - 1]);
+    ultimaEl.textContent = `Última actualización: ${last.toLocaleString("es-ES")}`;
+
+  }catch(e){
+    console.warn("KPI energía error:", e);
+  }
+}
+
+async function updateKPIVertida(){
+  try{
+    const exportData = await loadSensorById(SENSOR_VERTIDA_ID);
+    const el = document.getElementById("energiaVertida");
+
+    if(!exportData?.labels?.length){
+      el.textContent = `Energía vertida a la red: -- kWh`;
+      return;
+    }
+
+    const vertidaHoy = sumEnergyToday(exportData.labels, exportData.values);
+    el.textContent = `Energía vertida a la red: ${vertidaHoy.toFixed(2)} kWh`;
+
+  }catch(e){
+    console.warn("KPI vertida error:", e);
+  }
+}
+
+/* ==============================
+   BARRAS: Clima / Plantas / Otros
+================================ */
+async function updateHeaderBars(){
+  try{
+    const totalData = await loadSensorById(SENSOR_TOTAL_CONS_ID);
+    if(!totalData?.labels?.length) return;
+
+    const totalHoy = sumEnergyToday(totalData.labels, totalData.values);
+    if(totalHoy <= 0) return;
+
+    const dClimaA = await loadSensorById(SENSOR_CLIMA_A);
+    const dClimaB = await loadSensorById(SENSOR_CLIMA_B);
+
+    const climaHoy =
+      (dClimaA?.labels?.length ? sumEnergyToday(dClimaA.labels, dClimaA.values) : 0) +
+      (dClimaB?.labels?.length ? sumEnergyToday(dClimaB.labels, dClimaB.values) : 0);
+
+    let plantasHoy = 0;
+    for(const sid of SENSOR_PLANTAS){
+      const d = await loadSensorById(sid);
+      plantasHoy += d?.labels?.length ? sumEnergyToday(d.labels, d.values) : 0;
+    }
+
+    const otrosHoy = Math.max(totalHoy - climaHoy - plantasHoy, 0);
+
+    const pClima = pct(climaHoy, totalHoy);
+    const pPlantas = pct(plantasHoy, totalHoy);
+    const pOtros = pct(otrosHoy, totalHoy);
+
+    document.getElementById("barClima").style.width = `${Math.min(pClima,100).toFixed(1)}%`;
+    document.getElementById("barPlantas").style.width = `${Math.min(pPlantas,100).toFixed(1)}%`;
+    document.getElementById("barOtros").style.width = `${Math.min(pOtros,100).toFixed(1)}%`;
+
+    document.getElementById("txtClima").textContent = `${climaHoy.toFixed(2)} kWh (${pClima.toFixed(1)}%)`;
+    document.getElementById("txtPlantas").textContent = `${plantasHoy.toFixed(2)} kWh (${pPlantas.toFixed(1)}%)`;
+    document.getElementById("txtOtros").textContent = `${otrosHoy.toFixed(2)} kWh (${pOtros.toFixed(1)}%)`;
+
+  }catch(e){
+    console.warn("Header bars error:", e);
+  }
+}
+
+/* ==============================
+   AMBIENTE
+================================ */
+function getLastPoint(labels, values){
+  if(!labels?.length || !values?.length) return null;
+  return { ts: labels[labels.length - 1], value: values[values.length - 1] };
+}
+
+function setText(id, txt){
+  const el = document.getElementById(id);
+  if(el) el.textContent = txt;
+}
+
+async function updatePlantEnv(){
+  for(const p of PLANT_SENSORS){
+    try{
+      const dT = await loadSensorById(p.temp);
+      const dH = await loadSensorById(p.hum);
+
+      const lastT = getLastPoint(dT.labels, dT.values);
+      const lastH = getLastPoint(dH.labels, dH.values);
+
+      setText(p.outTemp, `🌡️ ${lastT ? lastT.value.toFixed(1) : "--"} °C`);
+      setText(p.outHum, `💧 ${lastH ? lastH.value.toFixed(1) : "--"} %`);
+    }catch(e){
+      console.warn("Plant env error:", p, e);
+    }
+  }
+}
+
+async function updateExteriorAndISFV(){
+  try{
+    const dExt = await loadSensorById(SENSOR_TEMP_EXT);
+    const dIrr = await loadSensorById(SENSOR_IRRAD);
+
+    const lastExt = getLastPoint(dExt.labels, dExt.values);
+    const lastIrr = getLastPoint(dIrr.labels, dIrr.values);
+
+    setText("tempExt", `🌡️ ${lastExt ? lastExt.value.toFixed(1) : "--"} °C`);
+    setText("tempExtTs", lastExt ? new Date(lastExt.ts).toLocaleString("es-ES") : "--");
+
+    setText("irrad", `☀️ ${lastIrr ? lastIrr.value.toFixed(0) : "--"} W/m²`);
+    setText("irradTs", lastIrr ? new Date(lastIrr.ts).toLocaleString("es-ES") : "--");
+
+  }catch(e){
+    console.warn("Exterior/ISFV error:", e);
+  }
+}
+
+/* ==============================
+   FETCH REAL
+================================ */
+async function fetchJSON(url) {
+  const r = await fetch(url, { cache: "no-store" });
+  if (!r.ok) throw new Error(`HTTP ${r.status} -> ${url}`);
+  return await r.json();
+}
+
+async function loadIndex() {
+  currentIndex = await fetchJSON(`${INDEX_URL}?t=${Date.now()}`);
+}
+
+async function loadSensorById(sensorId) {
+  if (!currentIndex?.sensores?.[sensorId]) {
+    throw new Error(`Sensor no encontrado en indice: ${sensorId}`);
+  }
+
+  const file = currentIndex.sensores[sensorId].archivo;
+  const url = `${DATA_DIR}/${file}?t=${Date.now()}`;
+  return await fetchJSON(url);
+}
+
+/* ==============================
+   EXPORT
+================================ */
+function downloadFile(filename, content, mimeType) {
+  const blob = new Blob([content], { type: mimeType });
+  const url = URL.createObjectURL(blob);
+
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+
+  URL.revokeObjectURL(url);
+}
+
+function getCurrentFilteredData() {
+  if (!currentSensorData) return null;
+
+  const dateStart = document.getElementById("dateStart").value;
+  const dateEnd = document.getElementById("dateEnd").value;
+  const resolution = document.getElementById("resolutionSelect").value;
+
+  const filtered = filterByDates(
+    currentSensorData.labels,
+    currentSensorData.values,
+    dateStart,
+    dateEnd
+  );
+
+  const aggregated = aggregateSeries(
+    filtered.outLabels,
+    filtered.outValues,
+    resolution,
+    currentSensorData.tipo_dato
+  );
+
+  return {
+    sensor_id: currentSensorData.sensor_id,
+    descripcion: currentSensorData.descripcion,
+    unidad: currentSensorData.unidad,
+    tipo_dato: currentSensorData.tipo_dato,
+    resolution,
+    dateStart,
+    dateEnd,
+    points: aggregated.labels.map((l, i) => ({
+      timestamp: l,
+      value: aggregated.values[i]
+    }))
+  };
+}
+
+function exportData(format) {
+  const data = getCurrentFilteredData();
+  if (!data || !data.points.length) {
+    alert("No hay datos para exportar en el rango seleccionado.");
+    return;
+  }
+
+  const safeName = data.sensor_id.replace(/[^a-zA-Z0-9_-]/g, "_");
+  const filenameBase = `${safeName}_${data.dateStart}_${data.dateEnd}_${data.resolution}`;
+
+  if (format === "json") {
+    const jsonText = JSON.stringify(data, null, 2);
+    downloadFile(`${filenameBase}.json`, jsonText, "application/json");
+    return;
+  }
+
+  const header = ["timestamp","value","unidad","sensor_id","descripcion"].join(",");
+  const rows = data.points.map(p => {
+    const ts = `"${p.timestamp}"`;
+    const val = (p.value ?? "").toString();
+    const unidad = `"${data.unidad}"`;
+    const id = `"${data.sensor_id}"`;
+    const desc = `"${data.descripcion.replace(/"/g, '""')}"`;
+    return [ts, val, unidad, id, desc].join(",");
+  });
+
+  const csvText = [header, ...rows].join("\n");
+  downloadFile(`${filenameBase}.csv`, csvText, "text/csv");
+}
+
+/* ==============================
+   UI
+================================ */
+function setDefaultLast2Days() {
+  const now = new Date();
+  const end = toISODateLocal(now);
+  const start = new Date(now.getTime() - 1 * 86400000);
+
+  document.getElementById("dateStart").value = toISODateLocal(start);
+  document.getElementById("dateEnd").value = end;
+}
+
+function redraw() {
+  if (!currentSensorData) return;
+
+  const dateStart = document.getElementById("dateStart").value;
+  const dateEnd = document.getElementById("dateEnd").value;
+  const resolution = document.getElementById("resolutionSelect").value;
+
+  const filtered = filterByDates(
+    currentSensorData.labels,
+    currentSensorData.values,
+    dateStart,
+    dateEnd
+  );
+
+  const aggregated = aggregateSeries(
+    filtered.outLabels,
+    filtered.outValues,
+    resolution,
+    currentSensorData.tipo_dato
+  );
+
+  if (!aggregated.values.length) {
+    renderMetrics({ actual:null, media:null, suma:null }, currentSensorData.unidad, currentSensorData.tipo_dato);
+    return;
+  }
+
+  drawChart(aggregated.labels, aggregated.values, currentSensorData.descripcion);
+
+  const m = calcMetrics(filtered.outLabels, filtered.outValues, currentSensorData.tipo_dato);
+  renderMetrics(m, currentSensorData.unidad, currentSensorData.tipo_dato);
+}
+
+async function initUI() {
+  await loadIndex();
+
+  const select = document.getElementById("sensorSelect");
+  select.innerHTML = "";
+
+  const entries = Object.entries(currentIndex.sensores || {});
+  entries.forEach(([id, s]) => {
+    const opt = document.createElement("option");
+    opt.value = id;
+    opt.textContent = s.descripcion || id;
+    select.appendChild(opt);
+  });
+
+  setDefaultLast2Days();
+  document.getElementById("resolutionSelect").value = "15m";
+
+  select.onchange = async () => {
+    currentSensorData = await loadSensorById(select.value);
+    redraw();
+  };
+
+  document.getElementById("dateStart").onchange = redraw;
+  document.getElementById("dateEnd").onchange = redraw;
+  document.getElementById("resolutionSelect").onchange = redraw;
+
+  if (select.value) {
+    currentSensorData = await loadSensorById(select.value);
+    redraw();
+  }
+
+  await updateKPIEnergia();
+  await updateKPIVertida();
+  await updateDonutMixHoy();
+  await updateHeaderBars();
+  await updatePlantEnv();
+  await updateExteriorAndISFV();
+}
+
+async function autoRefreshLoop() {
+  try {
+    const currentSelected = document.getElementById("sensorSelect").value;
+
+    await loadIndex();
+
+    if (currentSelected) {
+      currentSensorData = await loadSensorById(currentSelected);
+      redraw();
+    }
+
+    await updateKPIEnergia();
+    await updateKPIVertida();
+    await updateDonutMixHoy();
+    await updateHeaderBars();
+    await updatePlantEnv();
+    await updateExteriorAndISFV();
+
+    const dot = document.getElementById("liveDot");
+    dot.style.opacity = "0.35";
+    setTimeout(() => dot.style.opacity = "1", 150);
+
+  } catch (e) {
+    console.warn("Auto refresh error:", e);
+  }
+}
+
+initUI();
+setInterval(autoRefreshLoop, AUTO_REFRESH_MS);
+
+/* ==============================
+   AUTO-REFRESCO DASHBOARD
+================================ */
+setInterval(() => {
+  location.reload();
+}, 60000);
+
+</script>
+
+</body>
+</html>
+
