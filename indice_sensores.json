@@ -1,5 +1,5 @@
 {
-  "generado": "2026-02-13T14:28:41.525177",
+  "generado": "2026-02-13T17:12:54.734388",
   "sensores": {
     "0190_MV_C1_ASB_ACTIVEE": {
       "descripcion": "Energia importada",
@@ -85,11 +85,6 @@
       "descripcion": "Tª ambiente Planta 3",
       "unidad": "°C",
       "archivo": "0190_HV_S3_STPRO_TEMP.json"
-    },
-    "0190_HV_S4_STPRO_TEMP": {
-      "descripcion": "Tª ambiente Planta 4",
-      "unidad": "°C",
-      "archivo": "0190_HV_S4_STPRO_TEMP.json"
     },
     "0190_HV_S5_STPRO_TEMP": {
       "descripcion": "Tª ambiente Planta 5",
