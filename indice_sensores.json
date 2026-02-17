@@ -1,40 +1,4 @@
 {
-  "generado": "2026-02-17T23:01:41.680999",
-  "sensores": {
-    "0190_HV_S4_STPRO_HUM": {
-      "descripcion": "Humedad Interior Planta 4",
-      "unidad": "%",
-      "archivo": "0190_HV_S4_STPRO_HUM.json"
-    },
-    "0190_HV_S5_STPRO_HUM": {
-      "descripcion": "Humedad Interior Planta 5",
-      "unidad": "%",
-      "archivo": "0190_HV_S5_STPRO_HUM.json"
-    },
-    "0190_HV_S1_STPRO_TEMP": {
-      "descripcion": "Tª ambiente Planta 1",
-      "unidad": "°C",
-      "archivo": "0190_HV_S1_STPRO_TEMP.json"
-    },
-    "0190_HV_S2_STPRO_TEMP": {
-      "descripcion": "Tª ambiente Planta 2",
-      "unidad": "°C",
-      "archivo": "0190_HV_S2_STPRO_TEMP.json"
-    },
-    "0190_HV_S3_STPRO_TEMP": {
-      "descripcion": "Tª ambiente Planta 3",
-      "unidad": "°C",
-      "archivo": "0190_HV_S3_STPRO_TEMP.json"
-    },
-    "0190_HV_S4_STPRO_TEMP": {
-      "descripcion": "Tª ambiente Planta 4",
-      "unidad": "°C",
-      "archivo": "0190_HV_S4_STPRO_TEMP.json"
-    },
-    "0190_HV_S5_STPRO_TEMP": {
-      "descripcion": "Tª ambiente Planta 5",
-      "unidad": "°C",
-      "archivo": "0190_HV_S5_STPRO_TEMP.json"
-    }
-  }
+  "generado": "2026-02-17T23:59:31.213205",
+  "sensores": {}
 }
