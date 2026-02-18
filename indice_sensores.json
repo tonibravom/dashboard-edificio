@@ -1,4 +1,120 @@
 {
-  "generado": "2026-02-17T23:59:31.213205",
-  "sensores": {}
+  "generado": "2026-02-18T05:17:41.822616",
+  "sensores": {
+    "0190_MV_C1_ASB_ACTIVEE": {
+      "descripcion": "Energia importada",
+      "unidad": "kWh",
+      "archivo": "0190_MV_C1_ASB_ACTIVEE.json"
+    },
+    "0190_MV_CIA_EXPORT": {
+      "descripcion": "Energia exportada",
+      "unidad": "kWh",
+      "archivo": "0190_MV_CIA_EXPORT.json"
+    },
+    "0190_MV_C2_ASB_ACTIVEE": {
+      "descripcion": "Clima (P1, P2 i P3) Energia activa",
+      "unidad": "kWh",
+      "archivo": "0190_MV_C2_ASB_ACTIVEE.json"
+    },
+    "0190_MV_C41_CGEM21_EACTIVA": {
+      "descripcion": "Clima (P4) Energia activa",
+      "unidad": "kWh",
+      "archivo": "0190_MV_C41_CGEM21_EACTIVA.json"
+    },
+    "0190_MV_C10_CGEM21_EACTIVA": {
+      "descripcion": "Planta 1 Total Energia activa",
+      "unidad": "kWh",
+      "archivo": "0190_MV_C10_CGEM21_EACTIVA.json"
+    },
+    "0190_MV_C20_CGEM21_EACTIVA": {
+      "descripcion": "Planta 2 Total Energia activa",
+      "unidad": "kWh",
+      "archivo": "0190_MV_C20_CGEM21_EACTIVA.json"
+    },
+    "0190_MV_C30_CGEM21_EACTIVA": {
+      "descripcion": "Planta 3 Total Energia activa",
+      "unidad": "kWh",
+      "archivo": "0190_MV_C30_CGEM21_EACTIVA.json"
+    },
+    "0190_MV_C40_CGEM21_EACTIVA": {
+      "descripcion": "Planta 4 Total Energia activa",
+      "unidad": "kWh",
+      "archivo": "0190_MV_C40_CGEM21_EACTIVA.json"
+    },
+    "0190_MV_C50_CGEM21_EACTIVA": {
+      "descripcion": "Planta 5 Total Energia activa",
+      "unidad": "kWh",
+      "archivo": "0190_MV_C50_CGEM21_EACTIVA.json"
+    },
+    "0190_HV_S1_STPRO_HUM": {
+      "descripcion": "Humedad Interior Planta 1",
+      "unidad": "%",
+      "archivo": "0190_HV_S1_STPRO_HUM.json"
+    },
+    "0190_HV_S2_STPRO_HUM": {
+      "descripcion": "Humedad Interior Planta 2",
+      "unidad": "%",
+      "archivo": "0190_HV_S2_STPRO_HUM.json"
+    },
+    "0190_HV_S3_STPRO_HUM": {
+      "descripcion": "Humedad Interior Planta 3",
+      "unidad": "%",
+      "archivo": "0190_HV_S3_STPRO_HUM.json"
+    },
+    "0190_HV_S4_STPRO_HUM": {
+      "descripcion": "Humedad Interior Planta 4",
+      "unidad": "%",
+      "archivo": "0190_HV_S4_STPRO_HUM.json"
+    },
+    "0190_HV_S5_STPRO_HUM": {
+      "descripcion": "Humedad Interior Planta 5",
+      "unidad": "%",
+      "archivo": "0190_HV_S5_STPRO_HUM.json"
+    },
+    "0190_HV_S1_STPRO_TEMP": {
+      "descripcion": "Tª ambiente Planta 1",
+      "unidad": "°C",
+      "archivo": "0190_HV_S1_STPRO_TEMP.json"
+    },
+    "0190_HV_S2_STPRO_TEMP": {
+      "descripcion": "Tª ambiente Planta 2",
+      "unidad": "°C",
+      "archivo": "0190_HV_S2_STPRO_TEMP.json"
+    },
+    "0190_HV_S3_STPRO_TEMP": {
+      "descripcion": "Tª ambiente Planta 3",
+      "unidad": "°C",
+      "archivo": "0190_HV_S3_STPRO_TEMP.json"
+    },
+    "0190_HV_S4_STPRO_TEMP": {
+      "descripcion": "Tª ambiente Planta 4",
+      "unidad": "°C",
+      "archivo": "0190_HV_S4_STPRO_TEMP.json"
+    },
+    "0190_HV_S5_STPRO_TEMP": {
+      "descripcion": "Tª ambiente Planta 5",
+      "unidad": "°C",
+      "archivo": "0190_HV_S5_STPRO_TEMP.json"
+    },
+    "0524_MV_FVENERGIA": {
+      "descripcion": "Energia producida por la ISFV",
+      "unidad": "kWh",
+      "archivo": "0524_MV_FVENERGIA.json"
+    },
+    "0524_HV_TEMP_EXT": {
+      "descripcion": "Tª exterior",
+      "unidad": "°C",
+      "archivo": "0524_HV_TEMP_EXT.json"
+    },
+    "0524_HV_IRRAD": {
+      "descripcion": "Irradiancia",
+      "unidad": "W/m2",
+      "archivo": "0524_HV_IRRAD.json"
+    },
+    "0190_MV_ENERGIA_CONS": {
+      "descripcion": "Energia total consumida",
+      "unidad": "kWh",
+      "archivo": "0190_MV_ENERGIA_CONS.json"
+    }
+  }
 }
