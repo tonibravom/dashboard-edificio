@@ -4,9 +4,9 @@
   "unidad": "W/m2",
   "tipo_dato": "instantaneo",
   "labels": [
-    "2026-04-04T06:15:00"
+    "2026-04-04T07:15:00"
   ],
   "values": [
-    30.0
+    60.0
   ]
 }
