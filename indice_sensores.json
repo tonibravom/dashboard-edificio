@@ -1,5 +1,5 @@
 {
-  "generado": "2026-04-30T11:01:28.335705",
+  "generado": "2026-04-30T12:20:47.506697",
   "sensores": {
     "0190_MV_C1_ASB_ACTIVEE": {
       "descripcion": "Energia importada",
@@ -31,30 +31,15 @@
       "unidad": "kWh",
       "archivo": "0190_MV_C20_CGEM21_EACTIVA.json"
     },
-    "0190_MV_C30_CGEM21_EACTIVA": {
-      "descripcion": "Planta 3 Total Energia activa",
-      "unidad": "kWh",
-      "archivo": "0190_MV_C30_CGEM21_EACTIVA.json"
-    },
     "0190_MV_C40_CGEM21_EACTIVA": {
       "descripcion": "Planta 4 Total Energia activa",
       "unidad": "kWh",
       "archivo": "0190_MV_C40_CGEM21_EACTIVA.json"
     },
-    "0190_MV_C50_CGEM21_EACTIVA": {
-      "descripcion": "Planta 5 Total Energia activa",
-      "unidad": "kWh",
-      "archivo": "0190_MV_C50_CGEM21_EACTIVA.json"
-    },
     "0190_HV_S1_STPRO_HUM": {
       "descripcion": "Humedad Interior Planta 1",
       "unidad": "%",
       "archivo": "0190_HV_S1_STPRO_HUM.json"
-    },
-    "0190_HV_S2_STPRO_HUM": {
-      "descripcion": "Humedad Interior Planta 2",
-      "unidad": "%",
-      "archivo": "0190_HV_S2_STPRO_HUM.json"
     },
     "0190_HV_S3_STPRO_HUM": {
       "descripcion": "Humedad Interior Planta 3",
