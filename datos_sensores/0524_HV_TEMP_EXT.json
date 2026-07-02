@@ -3,10 +3,6 @@
   "descripcion": "Tª exterior",
   "unidad": "°C",
   "tipo_dato": "instantaneo",
-  "labels": [
-    "2026-06-30T20:00:00"
-  ],
-  "values": [
-    26.923
-  ]
+  "labels": [],
+  "values": []
 }

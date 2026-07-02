@@ -3,10 +3,6 @@
   "descripcion": "Irradiancia",
   "unidad": "W/m2",
   "tipo_dato": "instantaneo",
-  "labels": [
-    "2026-06-30T20:00:00"
-  ],
-  "values": [
-    0.0
-  ]
+  "labels": [],
+  "values": []
 }

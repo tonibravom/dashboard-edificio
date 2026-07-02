@@ -3,12 +3,6 @@
   "descripcion": "Energia producida por la ISFV",
   "unidad": "kWh",
   "tipo_dato": "consumo_intervalo",
-  "labels": [
-    "2026-06-30T19:45:00",
-    "2026-06-30T20:00:00"
-  ],
-  "values": [
-    0.0,
-    0.0
-  ]
+  "labels": [],
+  "values": []
 }
