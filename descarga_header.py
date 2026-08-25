@@ -18,7 +18,7 @@ LIMIT_INSTANT = 1
 os.makedirs(DATA_FOLDER, exist_ok=True)
 
 TOKEN_STD = os.getenv("SENTILO_TOKEN", "").strip()
-TOKEN_FV  = os.getenv("SENTILO_TOKEN_FV", "").strip()
+
 
 # ==================================================
 # 🔥 SENSORES HEADER (LISTA BLANCA)
@@ -27,9 +27,8 @@ HEADER_SENSORS = {
 
     # energía base
     "0190_MV_C1_ASB_ACTIVEE",
-    "0524_MV_FVENERGIA",
     "0190_MV_CIA_EXPORT",
-    "0190_MV_ENERGIA_CONS",
+    
 
     # climatización
     "0190_MV_C2_ASB_ACTIVEE",
@@ -54,9 +53,7 @@ HEADER_SENSORS = {
     "0190_HV_S5_STPRO_TEMP",
     "0190_HV_S5_STPRO_HUM",
 
-    # FV ambiente
-    "0524_HV_TEMP_EXT",
-    "0524_HV_IRRAD",
+    
 }
 
 # ==================================================
@@ -117,51 +114,13 @@ for _, r in df.iterrows():
 
     print(f"\n📡 {sensor_id} – {descripcion}")
 
-    # ==================================================
-    # SENSOR CALCULADO
-    # ==================================================
-    if sensor_id == "0190_MV_ENERGIA_CONS":
+   
 
-        imp = cache.get("0190_MV_C1_ASB_ACTIVEE")
-        fv  = cache.get("0524_MV_FVENERGIA")
-
-        if not imp or not fv:
-            print("   ❌ Faltan sensores base")
-            continue
-
-        n = min(len(imp["values"]), len(fv["values"]))
-
-        labels = imp["labels"][-n:]
-        values = [
-            imp["values"][-n+i] + fv["values"][-n+i]
-            for i in range(n)
-        ]
-
-        data = {
-            "sensor_id": sensor_id,
-            "descripcion": descripcion,
-            "unidad": unidad,
-            "tipo_dato": "consumo_intervalo",
-            "labels": labels,
-            "values": values
-        }
-
-        with open(f"{DATA_FOLDER}/{sensor_id}.json", "w", encoding="utf-8") as f:
-            json.dump(data, f, indent=2, ensure_ascii=False)
-
-        indice[sensor_id] = {
-            "descripcion": descripcion,
-            "unidad": unidad,
-            "archivo": f"{sensor_id}.json"
-        }
-
-        print(f"   ✅ CALCULADO ({len(values)} puntos)")
-        continue
 
     # ==================================================
     # SENSOR REAL
     # ==================================================
-    token = TOKEN_FV if provider.upper().startswith("ARKENOVA") else TOKEN_STD
+    token = TOKEN_STD
 
     headers = {
         "IDENTITY_KEY": token,
