@@ -29,9 +29,9 @@ jobs:
           
           # URLs corregidas apuntando al subdominio raw.githubusercontent.com
           librerias = {
-              "js/three.min.js": "https://githubusercontent.com",
-              "js/OrbitControls.js": "https://githubusercontent.com",
-              "js/GLTFLoader.js": "https://githubusercontent.com"
+              "js/three.min.js": "https://raw.githubusercontent.com",
+              "js/OrbitControls.js": "https://raw.githubusercontent.com",
+              "js/GLTFLoader.js": "https://raw.githubusercontent.com"
           }
           
           for ruta, url in librerias.items():
