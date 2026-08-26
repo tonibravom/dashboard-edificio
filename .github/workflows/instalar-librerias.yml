@@ -21,40 +21,37 @@ jobs:
       - name: Instalar libreria Requests
         run: pip install requests
 
-      - name: Ejecutar script de descarga de fuentes estables
+      - name: Ejecutar script utilizando fuentes de GitHub
         run: |
           python -c '
           import os, requests
           os.makedirs("js", exist_ok=True)
           
-          # URLs CDN de producción absolutas para evitar redirecciones HTML
+          # Descarga directa desde el código fuente original del repositorio de mrdoob (Three.js) en GitHub
+          # Usamos la versión de la rama r128 exacta para garantizar compatibilidad
           librerias = {
-              "js/three.min.js": "https://cloudflare.com",
-              "js/OrbitControls.js": "https://jsdelivr.net",
-              "js/GLTFLoader.js": "https://jsdelivr.net"
+              "js/three.min.js": "https://githubusercontent.com",
+              "js/OrbitControls.js": "https://githubusercontent.com",
+              "js/GLTFLoader.js": "https://githubusercontent.com"
           }
           
-          # Forzamos cabecera de navegador para evitar bloqueos en el servidor de origen
-          headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"}
-          
           for ruta, url in librerias.items():
-              print(f"Descargando {ruta} desde {url}...")
-              res = requests.get(url, headers=headers, timeout=30)
+              print(f"Descargando {ruta} desde el repositorio principal de GitHub...")
+              res = requests.get(url, timeout=30)
               res.raise_for_status()
               
-              # Validación crítica: si empieza por "<", es un HTML de error y no lo guardamos
               contenido = res.text.strip()
-              if contenido.startswith("<"):
-                  raise Exception(f"Error crítico: La URL devolvió HTML en vez de JavaScript para {ruta}")
+              if contenido.startswith("<") or "Page Not Found" in contenido:
+                  raise Exception(f"Error crítico: La URL de GitHub devolvió un error para {ruta}")
                   
               with open(ruta, "w", encoding="utf-8") as f:
                   f.write(contenido)
-          print("Librerias descargadas con éxito de forma limpia.")
+          print("Librerias descargadas con éxito y de forma limpia desde GitHub.")
           '
 
       - name: Guardar cambios en el repositorio de GitHub
         run: |
           git config --global user.name "github-actions[bot]"
-          git config --global user.email "github-actions[bot]@://github.com"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
           git add js/
-          git commit -m "Auto: Reemplazar librerias 3D por codigo JS limpio" && git push || echo "No hay cambios nuevos"
+          git commit -m "Auto: Forzar descarga limpia de librerias desde GitHub Source" && git push || echo "No hay cambios nuevos"
