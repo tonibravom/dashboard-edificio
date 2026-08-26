@@ -21,14 +21,13 @@ jobs:
       - name: Instalar libreria Requests
         run: pip install requests
 
-      - name: Ejecutar script utilizando fuentes de GitHub
+      - name: Ejecutar script utilizando fuentes de GitHub corregidas
         run: |
           python -c '
           import os, requests
           os.makedirs("js", exist_ok=True)
           
-          # Descarga directa desde el código fuente original del repositorio de mrdoob (Three.js) en GitHub
-          # Usamos la versión de la rama r128 exacta para garantizar compatibilidad
+          # URLs corregidas apuntando al subdominio raw.githubusercontent.com
           librerias = {
               "js/three.min.js": "https://githubusercontent.com",
               "js/OrbitControls.js": "https://githubusercontent.com",
@@ -36,22 +35,22 @@ jobs:
           }
           
           for ruta, url in librerias.items():
-              print(f"Descargando {ruta} desde el repositorio principal de GitHub...")
+              print(f"Descargando {ruta}...")
               res = requests.get(url, timeout=30)
               res.raise_for_status()
               
               contenido = res.text.strip()
               if contenido.startswith("<") or "Page Not Found" in contenido:
-                  raise Exception(f"Error crítico: La URL de GitHub devolvió un error para {ruta}")
+                  raise Exception(f"Error crítico: La URL devolvió un error para {ruta}")
                   
               with open(ruta, "w", encoding="utf-8") as f:
                   f.write(contenido)
-          print("Librerias descargadas con éxito y de forma limpia desde GitHub.")
+          print("Librerias descargadas con éxito y de forma limpia.")
           '
 
       - name: Guardar cambios en el repositorio de GitHub
         run: |
           git config --global user.name "github-actions[bot]"
-          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git config --global user.email "github-actions[bot]@://github.com"
           git add js/
-          git commit -m "Auto: Forzar descarga limpia de librerias desde GitHub Source" && git push || echo "No hay cambios nuevos"
+          git commit -m "Auto: Forzar descarga limpia con URLs corregidas" && git push || echo "No hay cambios nuevos"
