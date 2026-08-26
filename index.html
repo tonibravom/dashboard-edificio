@@ -354,7 +354,22 @@ window.addEventListener("resize",()=>{
     );
 
 });
+loader.load("avinyo7edifici.glb", function(gltf){
 
+    console.log("ARBRE DEL MODEL");
+
+    gltf.scene.traverse((obj)=>{
+
+        console.log(
+            obj.type,
+            obj.name
+        );
+
+    });
+
+});
+
+});
 </script>
 
 </body>
