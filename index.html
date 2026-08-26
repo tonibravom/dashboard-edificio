@@ -1,15 +1,17 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard Gemelo Digital - Avinyó 7</title>
-    
-    <!-- Enlaces locales a las librerías generadas por GitHub Actions -->
-    <script src="js/three.min.js"></script>
-    <script src="js/OrbitControls.js"></script>
-    <script src="js/GLTFLoader.js"></script>
-
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dashboard Gemelo Digital - Avinyó 7</title>
+<!-- THREE.JS -->
+https://unpkg.com/three@0.128.0/build/three.min.jsscript>
+<!-- CONTROLES -->
+https://unpkg.com/three@0.128.0/examples/js/controls/OrbitControls.jsscript>
+<!-- GLTF -->
+https://unpkg.com/three@0.128.0/examples/js/loaders/GLTFLoader.jsscript>
+console.log("THREE:", THREE);
+console.log("GLTFLoader:", THREE.GLTFLoader);
     <style>
         * {
             margin: 0;
@@ -215,36 +217,107 @@
 
         // --- CARGA DEL MODELO GLTF ---
         const loader = new THREE.GLTFLoader();
-        const URL_MODELO = 'avinyo7edifici.gltf'; 
 
-        loader.load(URL_MODELO, (gltf) => {
-            modeloEdificio = gltf.scene;
-            scene.add(modeloEdificio);
-            document.getElementById('loading').style.display = 'none';
+const URL_MODELO = "avinyo7edifici.gltf";
 
-            // Encuentra los límites del edificio para centrar la cámara automáticamente
-            const box = new THREE.Box3().setFromObject(modeloEdificio);
-            const center = box.getCenter(new THREE.Vector3());
-            const size = box.getSize(new THREE.Vector3());
-            controls.target.copy(center);
-            camera.position.set(center.x + size.x * 1.5, center.y + size.y * 1.5, center.z + size.z * 1.5);
-            controls.update();
+loader.load(
 
-            // Analiza el árbol jerárquico del archivo para agrupar mallas por niveles de Revit/IFC
-            modeloEdificio.traverse((child) => {
-                if (child.isMesh) {
-                    let nodoPadre = child;
-                    while (nodoPadre) {
-                        if (nodoPadre.name && (nodoPadre.name.includes("Nivel") || nodoPadre.name.includes("Level") || nodoPadre.name.includes("Planta") || nodoPadre.name.includes("Floor"))) {
-                            const nombreLimpio = extraerNombrePlanta(nodoPadre.name);
-                            plantasDetectadas.add(nombreLimpio);
-                            child.userData.planta = nombreLimpio; 
-                            break;
-                        }
-                        nodoPadre = nodoPadre.parent;
-                    }
+    URL_MODELO,
+
+    function (gltf) {
+
+        console.log("MODEL CARREGAT", gltf);
+
+        modeloEdificio = gltf.scene;
+
+        scene.add(modeloEdificio);
+
+        document.getElementById("loading").style.display = "none";
+
+        const box =
+            new THREE.Box3().setFromObject(modeloEdificio);
+
+        const center =
+            box.getCenter(new THREE.Vector3());
+
+        const size =
+            box.getSize(new THREE.Vector3());
+
+        controls.target.copy(center);
+
+        camera.position.set(
+            center.x + size.x * 1.5,
+            center.y + size.y * 1.5,
+            center.z + size.z * 1.5
+        );
+
+        controls.update();
+
+        modeloEdificio.traverse((child) => {
+
+            if (!child.isMesh)
+                return;
+
+            let nodoPadre = child;
+
+            while (nodoPadre) {
+
+                if (
+                    nodoPadre.name &&
+                    (
+                        nodoPadre.name.includes("Nivel") ||
+                        nodoPadre.name.includes("Level") ||
+                        nodoPadre.name.includes("Planta") ||
+                        nodoPadre.name.includes("Floor")
+                    )
+                ) {
+
+                    const nombre =
+                        extraerNombrePlanta(
+                            nodoPadre.name
+                        );
+
+                    plantasDetectadas.add(nombre);
+
+                    child.userData.planta =
+                        nombre;
+
+                    break;
                 }
-            });
+
+                nodoPadre = nodoPadre.parent;
+            }
+        });
+
+        generarBotonesPlantas();
+    },
+
+    function (xhr) {
+
+        if (xhr.total) {
+
+            console.log(
+                (
+                    xhr.loaded /
+                    xhr.total *
+                    100
+                ).toFixed(1)
+                + "% carregat"
+            );
+        }
+    },
+
+    function (error) {
+
+        console.error(
+            "ERROR CARREGANT GLTF",
+            error
+        );
+
+        document.getElementById("loading").innerText =
+            "Error carregant el model GLTF";
+    }
+);
 
             // Genera dinámicamente los botones de niveles detectados
             generarBotonesPlantas();
@@ -256,30 +329,49 @@
 
         // Limpiador de prefijos complejos generados por exportadores BIM
         function extraerNombrePlanta(name) {
-            if (name.includes("Nivel")) return "Nivel " + name.split("Nivel").split("_").trim();
-            if (name.includes("Level")) return "Level " + name.split("Level").split("_").trim();
-            if (name.includes("Planta")) return "Planta " + name.split("Planta").split("_").trim();
-            if (name.includes("Floor")) return "Floor " + name.split("Floor").split("_").trim();
-            return name.split("_");
-        }
+		if (!name) return "Sense nom";
+			return name
+			.replace(/_/g, " ")
+			.replace(/\s+/g, " ")
+			.trim();
+	}
 
         // Dibuja la botonera en la interfaz flotante
-        function generarBotonesPlantas() {
-            const contenedorBotones = document.getElementById('lista-botones');
-            const plantasOrdenadas = Array.from(plantasDetectadas).sort();
-            
-            plantasOrdenadas.forEach(planta => {
-                const btn = document.createElement('button');
-                btn.className = 'btn-planta';
-                btn.innerText = planta;
-                btn.onclick = (e) => {
-                document.querySelectorAll('.btn-planta').forEach(b => b.classList.remove('active'));
-                btn.classList.add('active');
-		filtrarPlanta(planta);
-		};
-		contenedorBotones.appendChild(btn);}
-		);
-		}
+	function generarBotonesPlantas() {
+
+	   const contenedorBotones =
+        document.getElementById('lista-botones');
+
+    const plantasOrdenadas =
+        Array.from(plantasDetectadas).sort();
+
+    plantasOrdenadas.forEach(planta => {
+
+        const btn =
+            document.createElement('button');
+
+        btn.className = 'btn-planta';
+
+        btn.innerText = planta;
+
+        btn.onclick = () => {
+
+            document
+                .querySelectorAll('.btn-planta')
+                .forEach(b =>
+                    b.classList.remove('active')
+                );
+
+            btn.classList.add('active');
+
+            filtrarPlanta(planta);
+        };
+
+        contenedorBotones.appendChild(btn);
+
+    });
+}        
+
 	// --- BUCLE DE RENDERIZADO (60 FPS) ---
 		function animate() {
 		requestAnimationFrame(animate);
