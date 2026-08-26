@@ -1,7 +1,6 @@
 name: Descarga Automatica de Librerias 3D
 
 on:
-  # Permite ejecutar esta tarea manualmente con un solo clic desde la web
   workflow_dispatch:
 
 permissions:
@@ -22,23 +21,35 @@ jobs:
       - name: Instalar libreria Requests
         run: pip install requests
 
-      - name: Ejecutar script de descarga
+      - name: Ejecutar script de descarga de fuentes estables
         run: |
           python -c '
           import os, requests
           os.makedirs("js", exist_ok=True)
+          
+          # URLs CDN de producción absolutas para evitar redirecciones HTML
           librerias = {
-              "js/three.min.js": "https://unpkg.com",
-              "js/OrbitControls.js": "https://unpkg.com",
-              "js/GLTFLoader.js": "https://unpkg.com"
+              "js/three.min.js": "https://cloudflare.com",
+              "js/OrbitControls.js": "https://jsdelivr.net",
+              "js/GLTFLoader.js": "https://jsdelivr.net"
           }
+          
+          # Forzamos cabecera de navegador para evitar bloqueos en el servidor de origen
+          headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"}
+          
           for ruta, url in librerias.items():
-              print(f"Descargando {ruta}...")
-              res = requests.get(url, timeout=30)
+              print(f"Descargando {ruta} desde {url}...")
+              res = requests.get(url, headers=headers, timeout=30)
               res.raise_for_status()
+              
+              # Validación crítica: si empieza por "<", es un HTML de error y no lo guardamos
+              contenido = res.text.strip()
+              if contenido.startswith("<"):
+                  raise Exception(f"Error crítico: La URL devolvió HTML en vez de JavaScript para {ruta}")
+                  
               with open(ruta, "w", encoding="utf-8") as f:
-                  f.write(res.text)
-          print("Librerias descargadas con exito.")
+                  f.write(contenido)
+          print("Librerias descargadas con éxito de forma limpia.")
           '
 
       - name: Guardar cambios en el repositorio de GitHub
@@ -46,4 +57,4 @@ jobs:
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@://github.com"
           git add js/
-          git diff --quiet && git diff --staged --quiet || (git commit -m "Auto: Incorporar librerias 3D locales para visor" && git push)
+          git commit -m "Auto: Reemplazar librerias 3D por codigo JS limpio" && git push || echo "No hay cambios nuevos"
