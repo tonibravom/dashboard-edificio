@@ -5,10 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard Gemelo Digital - Avinyó 7</title>
     
-    <!-- Importamos Three.js y las herramientas necesarias desde CDN -->
-    <script src="https://cloudflare.com"></script>
-    <script src="https://jsdelivr.net"></script>
-    <script src="https://jsdelivr.net"></script>
+    <!-- Enlaces locales a las librerías generadas por GitHub Actions -->
+    <script src="js/three.min.js"></script>
+    <script src="js/OrbitControls.js"></script>
+    <script src="js/GLTFLoader.js"></script>
 
     <style>
         * {
@@ -146,7 +146,7 @@
             </div>
         </div>
 
-        <!-- FRANJA DERECHA: Datos históricos (Vacío por ahora) -->
+        <!-- FRANJA DERECHA: Datos históricos -->
         <div class="column" id="col-derecha">
             <h2>Datos Históricos</h2>
             <p style="color: #555; margin-top: 10px;">Métricas consolidadas pasadas...</p>
@@ -155,6 +155,34 @@
     </div>
 
     <script>
+        // Variables globales para controlar la escena
+        let modeloEdificio = null;
+        const plantasDetectadas = new Set();
+
+        // LÓGICA DE FILTRADO (Se declara al inicio para evitar errores de referencia)
+        function filtrarPlanta(plantaSeleccionada) {
+            if (!modeloEdificio) {
+                console.warn("El modelo 3D aún no se ha terminado de cargar.");
+                return;
+            }
+
+            modeloEdificio.traverse((child) => {
+                if (child.isMesh) {
+                    if (plantaSeleccionada === 'todos') {
+                        child.visible = true; // Muestra todo el edificio
+                    } else {
+                        // Si el objeto pertenece a la planta elegida se ve, si no, se oculta
+                        if (child.userData.planta === plantaSeleccionada) {
+                            child.visible = true;
+                        } else {
+                            child.visible = false;
+                        }
+                    }
+                }
+            });
+        }
+        window.filtrarPlanta = filtrarPlanta;
+
         // --- CONFIGURACIÓN DE THREE.JS ---
         const contenedor = document.getElementById('col-centro');
         const canvas = document.getElementById('canvas-3d');
@@ -173,7 +201,7 @@
         const controls = new THREE.OrbitControls(camera, renderer.domElement);
         controls.enableDamping = true;
 
-        // Iluminación ambiental y direccional para evitar zonas negras en el edificio
+        // Iluminación para asegurar que todo el edificio sea visible
         const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
         scene.add(ambientLight);
 
@@ -186,19 +214,15 @@
         scene.add(dirLight2);
 
         // --- CARGA DEL MODELO GLTF ---
-        let modeloEdificio = null;
-        const plantasDetectadas = new Set();
         const loader = new THREE.GLTFLoader();
-
-        // 🌟 Nombre de tu archivo integrado con codificación de espacios para la URL
-        const URL_MODELO = 'avinyo%207%20edifici.gltf'; 
+        const URL_MODELO = 'avinyo7edifici.gltf'; 
 
         loader.load(URL_MODELO, (gltf) => {
             modeloEdificio = gltf.scene;
             scene.add(modeloEdificio);
             document.getElementById('loading').style.display = 'none';
 
-            // Centrar automáticamente la cámara en el edificio
+            // Encuentra los límites del edificio para centrar la cámara automáticamente
             const box = new THREE.Box3().setFromObject(modeloEdificio);
             const center = box.getCenter(new THREE.Vector3());
             const size = box.getSize(new THREE.Vector3());
@@ -206,7 +230,7 @@
             camera.position.set(center.x + size.x * 1.5, center.y + size.y * 1.5, center.z + size.z * 1.5);
             controls.update();
 
-            // Analizar el archivo para encontrar las plantas basadas en nombres de Revit/IFC
+            // Analiza el árbol jerárquico del archivo para agrupar mallas por niveles de Revit/IFC
             modeloEdificio.traverse((child) => {
                 if (child.isMesh) {
                     let nodoPadre = child;
@@ -222,6 +246,7 @@
                 }
             });
 
+            // Genera dinámicamente los botones de niveles detectados
             generarBotonesPlantas();
 
         }, undefined, (error) => {
@@ -229,16 +254,16 @@
             document.getElementById('loading').innerText = 'Error al cargar "avinyo 7 edifici.gltf"';
         });
 
-        // Limpieza de nombres de nodos del IFC
+        // Limpiador de prefijos complejos generados por exportadores BIM
         function extraerNombrePlanta(name) {
-            if (name.includes("Nivel")) return "Nivel " + name.split("Nivel")[1].split("_")[0].trim();
-            if (name.includes("Level")) return "Level " + name.split("Level")[1].split("_")[0].trim();
-            if (name.includes("Planta")) return "Planta " + name.split("Planta")[1].split("_")[0].trim();
-            if (name.includes("Floor")) return "Floor " + name.split("Floor")[1].split("_")[0].trim();
-            return name.split("_")[0];
+            if (name.includes("Nivel")) return "Nivel " + name.split("Nivel").split("_").trim();
+            if (name.includes("Level")) return "Level " + name.split("Level").split("_").trim();
+            if (name.includes("Planta")) return "Planta " + name.split("Planta").split("_").trim();
+            if (name.includes("Floor")) return "Floor " + name.split("Floor").split("_").trim();
+            return name.split("_");
         }
 
-        // Generar la botonera dinámica
+        // Dibuja la botonera en la interfaz flotante
         function generarBotonesPlantas() {
             const contenedorBotones = document.getElementById('lista-botones');
             const plantasOrdenadas = Array.from(plantasDetectadas).sort();
@@ -248,46 +273,22 @@
                 btn.className = 'btn-planta';
                 btn.innerText = planta;
                 btn.onclick = (e) => {
-                    document.querySelectorAll('.btn-planta').forEach(b => b.classList.remove('active'));
-                    btn.classList.add('active');
-                    filtrarPlanta(planta);
-                };
-                contenedorBotones.appendChild(btn);
-            });
-        }
-
-        // --- LÓGICA DE FILTRADO ---
-        function filtrarPlanta(plantaSeleccionada) {
-            if (!modeloEdificio) return;
-
-            modeloEdificio.traverse((child) => {
-                if (child.isMesh) {
-                    if (plantaSeleccionada === 'todos') {
-                        child.visible = true;
-                    } else {
-                        if (child.userData.planta === plantaSeleccionada) {
-                            child.visible = true;
-                        } else {
-                            child.visible = false;
-                        }
-                    }
-                }
-            });
-        }
-
-        window.filtrarPlanta = filtrarPlanta;
-
-        // --- BUCLE DE RENDERIZADO ---
-	function animate() {
-	requestAnimationFrame(animate);
-	controls.update();
-	renderer.render(scene, camera);
-	}
-	animate();
-
-	// --- AJUSTE DE VENTANA RESONSIVE ---
-	window.addEventListener('resize', () => {
-	camera.aspect = contenedor.clientWidth / contenedor.clientHeight;
-	camera.updateProjectionMatrix();
-	renderer.setSize(contenedor.clientWidth, contenedor.clientHeight);
-	});
+                document.querySelectorAll('.btn-planta').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+		filtrarPlanta(planta);
+		};
+		contenedorBotones.appendChild(btn);}
+		);
+		}
+	// --- BUCLE DE RENDERIZADO (60 FPS) ---
+		function animate() {
+		requestAnimationFrame(animate);
+		controls.update();
+		renderer.render(scene, camera);}
+		animate();
+	// --- COMPORTAMIENTO RESPONSIVE ---
+		window.addEventListener('resize', () => {
+			camera.aspect = contenedor.clientWidth / contenedor.clientHeight;
+			camera.updateProjectionMatrix();
+			renderer.setSize(contenedor.clientWidth, contenedor.clientHeight);}
+		);
