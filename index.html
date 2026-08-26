@@ -358,17 +358,9 @@ loader.load("avinyo7edifici.glb", function(gltf){
 
     console.log("ARBRE DEL MODEL");
 
+
+
     gltf.scene.traverse((obj)=>{
-
-        console.log(
-            obj.type,
-            obj.name
-        );
-
-    });
-
-});
-glb.scene.traverse((obj)=>{
 
     if(obj.isMesh){
 
@@ -389,6 +381,9 @@ glb.scene.traverse((obj)=>{
     }
 
 });
+    
+});
+
 
 </script>
 
