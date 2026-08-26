@@ -1,0 +1,49 @@
+name: Descarga Automatica de Librerias 3D
+
+on:
+  # Permite ejecutar esta tarea manualmente con un solo clic desde la web
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  descargar:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Descargar codigo del repositorio
+        uses: actions/checkout@v4
+
+      - name: Configurar Python en el servidor
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+
+      - name: Instalar libreria Requests
+        run: pip install requests
+
+      - name: Ejecutar script de descarga
+        run: |
+          python -c '
+          import os, requests
+          os.makedirs("js", exist_ok=True)
+          librerias = {
+              "js/three.min.js": "https://unpkg.com",
+              "js/OrbitControls.js": "https://unpkg.com",
+              "js/GLTFLoader.js": "https://unpkg.com"
+          }
+          for ruta, url in librerias.items():
+              print(f"Descargando {ruta}...")
+              res = requests.get(url, timeout=30)
+              res.raise_for_status()
+              with open(ruta, "w", encoding="utf-8") as f:
+                  f.write(res.text)
+          print("Librerias descargadas con exito.")
+          '
+
+      - name: Guardar cambios en el repositorio de GitHub
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@://github.com"
+          git add js/
+          git diff --quiet && git diff --staged --quiet || (git commit -m "Auto: Incorporar librerias 3D locales para visor" && git push)
