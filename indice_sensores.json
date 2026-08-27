@@ -1,5 +1,5 @@
 {
-  "generado": "2026-08-27T11:21:11.200170",
+  "generado": "2026-08-27T11:29:29.502258",
   "sensores": {
     "0190_MV_C1_ASB_ACTIVEE": {
       "descripcion": "Energia importada",
@@ -10,6 +10,16 @@
       "descripcion": "Energia exportada",
       "unidad": "kWh",
       "archivo": "0190_MV_CIA_EXPORT.json"
+    },
+    "0190_HV_C1_ASB_ACTIVEP": {
+      "descripcion": "Potencia Activa Total",
+      "unidad": "kW",
+      "archivo": "0190_HV_C1_ASB_ACTIVEP.json"
+    },
+    "0190_HV_C1_ASB_PFACTOR": {
+      "descripcion": "Factor de potencia total",
+      "unidad": "n.a.",
+      "archivo": "0190_HV_C1_ASB_PFACTOR.json"
     },
     "0190_MV_C2_ASB_ACTIVEE": {
       "descripcion": "Clima (P1, P2 i P3) Energia activa",
