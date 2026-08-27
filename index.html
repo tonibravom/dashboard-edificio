@@ -92,6 +92,34 @@ canvas{
     padding:5px;
 }
 
+
+#plantaActual{
+    margin-top:15px;
+    margin-bottom:15px;
+    font-size:20px;
+    font-weight:bold;
+    color:#4caf50;
+}
+
+.sensor{
+    background:#1f1f1f;
+    border:1px solid #333;
+    border-radius:8px;
+    padding:10px;
+    margin-bottom:10px;
+}
+
+.sensor .nom{
+    font-weight:bold;
+    margin-bottom:5px;
+}
+
+.sensor .valor{
+    font-size:24px;
+    color:#6ec6ff;
+}
+
+
 </style>
 
 </head>
@@ -101,8 +129,14 @@ canvas{
 <div class="dashboard">
 
     <div class="columna" id="esquerra">
-        <h2>Dades actuals</h2>
+    <h2>Dades actuals</h2>
+
+    <div id="plantaActual">
+        Edifici complet
     </div>
+
+    <div id="dadesSensors"></div>
+</div>
 
     <div class="columna" id="centre">
 
@@ -187,6 +221,101 @@ light2.position.set(-20,20,-20);
 
 scene.add(light2);
 
+
+const sensorsPerPlanta = {
+
+    "P*anta 1":[
+        {
+            nom:"Temperatura",
+            unitat:"ºC",
+            valor:"22.1"
+        },
+        {
+            nom:"Humitat",
+            unitat:"%",
+            valor:"51"
+        },
+        {
+            nom:"Consum energia",
+            unitat:"kWh",
+            valor:"1850"
+        }
+    ],
+
+    "Planta 2":[
+        {
+            nom:"Temperatura",
+            unitat:"ºC",
+            valor:"23.0"
+        },
+        {
+            nom:"Humitat",
+            unitat:"%",
+            valor:"49"
+        },
+        {
+            nom:"Consum energia",
+            unitat:"kWh",
+            valor:"2100"
+        }
+    ],
+
+    "Planta 3":[
+        {
+            nom:"Temperatura",
+            unitat:"ºC",
+            valor:"22.6"
+        },
+        {
+            nom:"Humitat",
+            unitat:"%",
+            valor:"50"
+        },
+        {
+            nom:"Consum energia",
+            unitat:"kWh",
+            valor:"1950"
+        }
+    ],
+
+    "Planta 4":[
+        {
+            nom:"Temperatura",
+            unitat:"ºC",
+            valor:"23.5"
+        },
+        {
+            nom:"Humitat",
+            unitat:"%",
+            valor:"47"
+        },
+        {
+            nom:"Consum energia",
+            unitat:"kWh",
+            valor:"2050"
+        }
+    ],
+
+    "Planta 5":[
+        {
+            nom:"Temperatura",
+            unitat:"ºC",
+            valor:"24.0"
+        },
+        {
+            nom:"Humitat",
+            unitat:"%",
+            valor:"45"
+        },
+        {
+            nom:"Consum energia",
+            unitat:"kWh",
+            valor:"1750"
+        }
+    ]
+
+};
+
 /* ---------- carregar model ---------- */
 
 const loader = new THREE.GLTFLoader();
@@ -225,6 +354,8 @@ loader.load(
         detectarPlantes();
 
         generarSelector();
+
+        mostrarSensors("totes");
 
         console.log("Model carregat correctament");
     },
@@ -355,6 +486,8 @@ document
 
     const planta = this.value;
 
+    mostrarSensors(planta);
+
     if(!model) return;
 
     model.traverse(function(node){
@@ -381,6 +514,64 @@ document
     });
 
 });
+
+function mostrarSensors(planta){
+
+    document.getElementById(
+        "plantaActual"
+    ).textContent = planta;
+
+    const contenidor =
+        document.getElementById(
+            "dadesSensors"
+        );
+
+    contenidor.innerHTML = "";
+
+    if(planta === "totes"){
+
+        contenidor.innerHTML =
+            "<p>Seleccioneu una planta.</p>";
+
+        return;
+    }
+
+    const sensors =
+        sensorsPerPlanta[planta];
+
+    if(!sensors){
+
+        contenidor.innerHTML =
+            "<p>No hi ha sensors associats.</p>";
+
+        return;
+    }
+
+    sensors.forEach(sensor => {
+
+        const div =
+            document.createElement("div");
+
+        div.className =
+            "sensor";
+
+        div.innerHTML = `
+            <div class="nom">
+                ${sensor.nom}
+            </div>
+
+            <div class="valor">
+                ${sensor.valor}
+                ${sensor.unitat}
+            </div>
+        `;
+
+        contenidor.appendChild(div);
+
+    });
+
+}
+
 
 /* ---------- render ---------- */
 
