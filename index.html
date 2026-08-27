@@ -245,37 +245,36 @@ loader.load(
 
 function obtenirPlanta(y){
 
-    if(y < -6.80){
+    if(y < -9.80){
         return "Soterrani";
     }
 
-    if(y <= -3.80){
+    if(y <= -6.80){
         return "Planta Baixa";
     }
 
-    if(y <= 3.85){
+    if(y <= 0.00){
         return "Planta 1";
     }
 
-    if(y <= 13.95){
+    if(y <= 10.95){
         return "Planta 2";
     }
 
-    if(y <= 17.00){
+    if(y <= 13.00){
         return "Planta 3";
     }
 
-    if(y <= 20.20){
+    if(y <= 16.20){
         return "Planta 4";
     }
 
-    if(y <= 23.50){
+    if(y <= 19.50){
         return "Planta 5";
     }
 
     return "Coberta";
 }
-
 
 function detectarPlantes(){
 
