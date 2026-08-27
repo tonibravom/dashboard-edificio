@@ -14,6 +14,7 @@
 
 <script src="https://unpkg.com/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
 
+<script src="https://cdn.jsdelivr.net/npm/chart.
 
 <style>
 
@@ -135,14 +136,10 @@ canvas{
 <div class="dashboard">
 
     <div class="columna" id="esquerra">
-    <h2>Dades actuals</h2>
+    <h2>Digital Twin</h2>
 
-h2{
-    font-size:18px;
-    margin-bottom:10px;
-}
     <div id="plantaActual">
-        Edifici complet
+        Edifici
     </div>
 
     <div id="dadesSensors">
@@ -151,6 +148,24 @@ h2{
         <div class="nom">⚡ Energia consumida avui</div>
         <div id="energiaEdifici" class="valor">...</div>
     </div>
+
+<div class="sensor">
+    <div class="nom">
+        🔌 Potència activa
+    </div>
+    <div id="potenciaActiva" class="valor">
+        ...
+    </div>
+</div>
+
+<div class="sensor">
+    <div class="nom">
+        📈 Factor de potència
+    </div>
+    <div id="factorPotencia" class="valor">
+        ...
+    </div>
+</div>
 
     <div class="sensor">
         <div class="nom">🌡️ Temperatura mitjana edifici</div>
@@ -161,6 +176,20 @@ h2{
         <div class="nom">💧 Humitat relativa mitjana</div>
         <div id="humitatEdifici" class="valor">...</div>
     </div>
+
+<div class="sensor">
+
+    <div class="nom">
+        🥧 Repartiment energètic
+    </div>
+
+    <canvas
+        id="graficaEnergia"
+        width="250"
+        height="250">
+    </canvas>
+
+</div>
 
 </div>
 </div>
@@ -262,6 +291,22 @@ light2.position.set(-20,20,-20);
 
 scene.add(light2);
 
+
+async function energiaDia(fitxer){
+
+    const dades =
+        await llegirSensor(
+            "datos_sensores/" + fitxer
+        );
+
+    return dades.values.reduce(
+        (a,b)=>a+b,
+        0
+    );
+
+}
+
+
 async function carregarIndicadorsEdifici(){
 
     try{
@@ -281,11 +326,160 @@ const consumAvui =
         0
     );
 
+
 document.getElementById(
     "energiaEdifici"
 ).innerHTML =
     consumAvui.toFixed(0)
     + " kWh";
+
+
+const potencia =
+    await llegirSensor(
+        "datos_sensores/0190_HV_C1_ASB_ACTIVEP.json"
+    );
+
+const potenciaActual =
+    potencia.values[
+        potencia.values.length - 1
+    ];
+
+document.getElementById(
+    "potenciaActiva"
+).innerHTML =
+    potenciaActual.toFixed(1)
+    + " kW";
+
+const fp =
+    await llegirSensor(
+        "datos_sensores/0190_HV_C1_ASB_PFACTOR.json"
+    );
+
+const fpActual =
+    fp.values[
+        fp.values.length - 1
+    ];
+
+document.getElementById(
+    "factorPotencia"
+).innerHTML =
+    fpActual.toFixed(3);
+
+
+const energiaPlantes =
+
+      await energiaDia(
+      "0190_MV_C10_CGEM21_EACTIVA.json"
+      )
+
+    + await energiaDia(
+      "0190_MV_C20_CGEM21_EACTIVA.json"
+      )
+
+    + await energiaDia(
+      "0190_MV_C30_CGEM21_EACTIVA.json"
+      )
+
+    + await energiaDia(
+      "0190_MV_C40_CGEM21_EACTIVA.json"
+      )
+
+    + await energiaDia(
+      "0190_MV_C50_CGEM21_EACTIVA.json"
+      );
+
+const energiaClima =
+
+      await energiaDia(
+      "0190_MV_C2_ASB_ACTIVEE.json"
+      )
+
+    + await energiaDia(
+      "0190_MV_C41_CGEM21_EACTIVA.json"
+      );
+
+const energiaAltres =
+
+    consumAvui
+
+    - energiaPlantes
+
+    - energiaClima;
+
+const pctPlantes =
+
+    energiaPlantes
+    / consumAvui
+    * 100;
+
+const pctClima =
+
+    energiaClima
+    / consumAvui
+    * 100;
+
+const pctAltres =
+
+    energiaAltres
+    / consumAvui
+    * 100;
+
+
+new Chart(
+
+    document
+    .getElementById(
+        "graficaEnergia"
+    ),
+
+    {
+        type:"pie",
+
+        data:{
+
+            labels:[
+                "Plantes",
+                "Climatització",
+                "Altres"
+            ],
+
+            datasets:[{
+
+                data:[
+                    pctPlantes,
+                    pctClima,
+                    pctAltres
+                ],
+
+                backgroundColor:[
+
+                    "#4caf50",
+                    "#2196f3",
+                    "#ff9800"
+
+                ]
+
+            }]
+
+        },
+
+        options:{
+
+            responsive:true,
+
+            plugins:{
+
+                legend:{
+                    position:"bottom"
+                }
+
+            }
+
+        }
+
+    }
+
+);
 
         /* =======================
            TEMPERATURA
