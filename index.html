@@ -243,39 +243,70 @@ loader.load(
 
 /* ---------- detectar plantes ---------- */
 
+function obtenirPlanta(z){
+
+    if(z < 0){
+        return "Soterrani";
+    }
+
+    if(z <= 3.90){
+        return "Planta Baixa";
+    }
+
+    if(z <= 6.90){
+        return "Planta 1";
+    }
+
+    if(z <= 10.65){
+        return "Planta 2";
+    }
+
+    if(z <= 13.95){
+        return "Planta 3";
+    }
+
+    if(z <= 17.10){
+        return "Planta 4";
+    }
+
+    if(z <= 20.30){
+        return "Planta 5";
+    }
+
+    return "Coberta";
+}
+
+
 function detectarPlantes(){
 
     model.traverse(function(node){
 
         if(!node.isMesh) return;
 
-        let parent = node;
+        const box =
+            new THREE.Box3().setFromObject(node);
 
-        while(parent){
+        const center =
+            box.getCenter(new THREE.Vector3());
 
-            const nom = parent.name || "";
+        const planta =
+            obtenirPlanta(center.z);
 
-            if(
-                nom.includes("Level") ||
-                nom.includes("Nivel") ||
-                nom.includes("Planta") ||
-                nom.includes("Floor")
-            ){
+        node.userData.planta = planta;
 
-                plantes.add(nom);
+        plantes.add(planta);
 
-                node.userData.planta = nom;
-
-                break;
-            }
-
-            parent = parent.parent;
-        }
+        console.log(
+            node.name,
+            "Z =",
+            center.z,
+            "->",
+            planta
+        );
 
     });
 
 }
-
 /* ---------- selector ---------- */
 
 function generarSelector(){
@@ -283,21 +314,33 @@ function generarSelector(){
     const select =
         document.getElementById("selectorPlanta");
 
-    [...plantes]
-        .sort()
-        .forEach(planta=>{
+    const ordre = [
+        "Soterrani",
+        "Planta Baixa",
+        "Planta 1",
+        "Planta 2",
+        "Planta 3",
+        "Planta 4",
+        "Planta 5",
+        "Coberta"
+    ];
 
-            const option =
-                document.createElement("option");
+    ordre.forEach(planta => {
 
-            option.value = planta;
-            option.textContent = planta;
+        if(!plantes.has(planta)) return;
 
-            select.appendChild(option);
+        const option =
+            document.createElement("option");
 
-        });
+        option.value = planta;
+        option.textContent = planta;
+
+        select.appendChild(option);
+
+    });
 
 }
+
 
 document
 .getElementById("selectorPlanta")
