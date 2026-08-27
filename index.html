@@ -275,95 +275,14 @@ canvas{
 
 </div>
 
-<div class="dashboard">
 
-    <div class="columna" id="esquerra">
-    <h2>Digital Twin</h2>
-
-    <div id="plantaActual">
-        Edifici
-    </div>
-
-    <div id="dadesSensors">
-
-    <div class="sensor">
-        <div class="nom">⚡ Energia consumida avui</div>
-        <div id="energiaEdifici" class="valor">...</div>
-    </div>
-
-<div class="sensor">
-    <div class="nom">
-        🔌 Potència activa
-    </div>
-    <div id="potenciaActiva" class="valor">
-        ...
-    </div>
-</div>
-
-<div class="sensor">
-    <div class="nom">
-        📈 Factor de potència
-    </div>
-    <div id="factorPotencia" class="valor">
-        ...
-    </div>
-</div>
-
-    <div class="sensor">
-        <div class="nom">🌡️ Temperatura mitjana edifici</div>
-        <div id="temperaturaEdifici" class="valor">...</div>
-    </div>
-
-    <div class="sensor">
-        <div class="nom">💧 Humitat relativa mitjana</div>
-        <div id="humitatEdifici" class="valor">...</div>
-    </div>
-
-<div class="sensor">
-
-    <div class="nom">
-        🥧 Repartiment energètic
-    </div>
-
-    <canvas
-        id="graficaEnergia"
-        width="250"
-        height="250">
-    </canvas>
-
-</div>
-
-</div>
-</div>
-
-    <div class="columna" id="centre">
-
-        <div id="loading">
-            Carregant model...
-        </div>
-
-        <div class="selector">
-            <select id="selectorPlanta">
-                <option value="totes">Edifici complet</option>
-            </select>
-        </div>
-
-        <canvas id="visor3d"></canvas>
-
-    </div>
-
-    <div class="columna" id="dreta">
-        <h2>Històrics</h2>
-    </div>
-
-</div>
 
 <script>
 
 let model = null;
 const plantes = new Set();
 
-const container = document.getElementById("centre");
+const container = document.getElementById("visorContainer");
 const canvas = document.getElementById("visor3d");
 
 const scene = new THREE.Scene();
@@ -912,63 +831,6 @@ document
 
 });
 
-function mostrarSensors(planta){
-
-    document.getElementById(
-        "plantaActual"
-    ).textContent = planta;
-
-    const contenidor =
-        document.getElementById(
-            "dadesSensors"
-        );
-
-    contenidor.innerHTML = "";
-
-    if(planta === "totes"){
-
-        contenidor.innerHTML =
-            "<p>Seleccioneu una planta.</p>";
-
-        return;
-    }
-
-    const sensors =
-        sensorsPerPlanta[planta];
-
-    if(!sensors){
-
-        contenidor.innerHTML =
-            "<p>No hi ha sensors associats.</p>";
-
-        return;
-    }
-
-    sensors.forEach(sensor => {
-
-        const div =
-            document.createElement("div");
-
-        div.className =
-            "sensor";
-
-        div.innerHTML = `
-            <div class="nom">
-                ${sensor.nom}
-            </div>
-
-            <div class="valor">
-                ${sensor.valor}
-                ${sensor.unitat}
-            </div>
-        `;
-
-        contenidor.appendChild(div);
-
-    });
-
-}
-
 
 /* ---------- render ---------- */
 
@@ -999,35 +861,6 @@ window.addEventListener("resize",()=>{
         container.clientHeight
     );
 
-});
-loader.load("avinyo7edifici.glb", function(gltf){
-
-    console.log("ARBRE DEL MODEL");
-
-
-
-    gltf.scene.traverse((obj)=>{
-
-    if(obj.isMesh){
-
-        const box =
-            new THREE.Box3()
-            .setFromObject(obj);
-
-        const center =
-            box.getCenter(
-                new THREE.Vector3()
-            );
-
-        console.log(
-            obj.name,
-            "Z =",
-            center.z
-        );
-    }
-
-});
-    
 });
 
 
