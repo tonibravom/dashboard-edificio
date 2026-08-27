@@ -243,33 +243,33 @@ loader.load(
 
 /* ---------- detectar plantes ---------- */
 
-function obtenirPlanta(z){
+function obtenirPlanta(y){
 
-    if(z < 0){
+    if(y < 0){
         return "Soterrani";
     }
 
-    if(z <= 3.90){
+    if(y <= 3.90){
         return "Planta Baixa";
     }
 
-    if(z <= 6.90){
+    if(y <= 6.90){
         return "Planta 1";
     }
 
-    if(z <= 10.65){
+    if(y <= 10.65){
         return "Planta 2";
     }
 
-    if(z <= 13.95){
+    if(y <= 13.95){
         return "Planta 3";
     }
 
-    if(z <= 17.10){
+    if(y <= 17.10){
         return "Planta 4";
     }
 
-    if(z <= 20.30){
+    if(y <= 20.30){
         return "Planta 5";
     }
 
@@ -290,7 +290,7 @@ function detectarPlantes(){
             box.getCenter(new THREE.Vector3());
 
         const planta =
-            obtenirPlanta(center.z);
+            obtenirPlanta(center.y);
 
         node.userData.planta = planta;
 
@@ -298,8 +298,8 @@ function detectarPlantes(){
 
         console.log(
             node.name,
-            "Z =",
-            center.z,
+            "y =",
+            center.y,
             "->",
             planta
         );
