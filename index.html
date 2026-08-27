@@ -110,13 +110,15 @@ canvas{
 }
 
 .sensor .nom{
+    font-size:34px;
     font-weight:bold;
-    margin-bottom:5px;
+    color:#6ec6ff;
 }
 
 .sensor .valor{
-    font-size:24px;
-    color:#6ec6ff;
+    font-size:18px;
+    font-weight:600;
+    margin-bottom:8px;
 }
 
 
@@ -135,7 +137,24 @@ canvas{
         Edifici complet
     </div>
 
-    <div id="dadesSensors"></div>
+    <div id="dadesSensors">
+
+    <div class="sensor">
+        <div class="nom">⚡ Energia consumida avui</div>
+        <div id="energiaEdifici" class="valor">...</div>
+    </div>
+
+    <div class="sensor">
+        <div class="nom">🌡️ Temperatura mitjana edifici</div>
+        <div id="temperaturaEdifici" class="valor">...</div>
+    </div>
+
+    <div class="sensor">
+        <div class="nom">💧 Humitat relativa mitjana</div>
+        <div id="humitatEdifici" class="valor">...</div>
+    </div>
+
+</div>
 </div>
 
     <div class="columna" id="centre">
@@ -197,6 +216,20 @@ const controls = new THREE.OrbitControls(
     renderer.domElement
 );
 
+async function llegirSensor(path){
+
+    const resposta = await fetch(path);
+
+    if(!resposta.ok){
+        throw new Error(path);
+    }
+
+    return await resposta.json();
+
+}
+
+
+
 controls.enableDamping = true;
 
 scene.add(
@@ -221,100 +254,114 @@ light2.position.set(-20,20,-20);
 
 scene.add(light2);
 
+async function carregarIndicadorsEdifici(){
 
-const sensorsPerPlanta = {
+    try{
 
-    "Planta 1":[
-        {
-            nom:"Temperatura",
-            unitat:"ºC",
-            valor:"22.1"
-        },
-        {
-            nom:"Humitat",
-            unitat:"%",
-            valor:"51"
-        },
-        {
-            nom:"Consum energia",
-            unitat:"kWh",
-            valor:"1850"
-        }
-    ],
+        /* =======================
+           ENERGIA
+           ======================= */
 
-    "Planta 2":[
-        {
-            nom:"Temperatura",
-            unitat:"ºC",
-            valor:"23.0"
-        },
-        {
-            nom:"Humitat",
-            unitat:"%",
-            valor:"49"
-        },
-        {
-            nom:"Consum energia",
-            unitat:"kWh",
-            valor:"2100"
-        }
-    ],
+        const energia =
+    await llegirSensor(
+        "datos_sensores/0190_MV_C1_ASB_ACTIVEE.json"
+    );
 
-    "Planta 3":[
-        {
-            nom:"Temperatura",
-            unitat:"ºC",
-            valor:"22.6"
-        },
-        {
-            nom:"Humitat",
-            unitat:"%",
-            valor:"50"
-        },
-        {
-            nom:"Consum energia",
-            unitat:"kWh",
-            valor:"1950"
-        }
-    ],
+const consumAvui =
+    energia.values.reduce(
+        (a,b) => a+b,
+        0
+    );
 
-    "Planta 4":[
-        {
-            nom:"Temperatura",
-            unitat:"ºC",
-            valor:"23.5"
-        },
-        {
-            nom:"Humitat",
-            unitat:"%",
-            valor:"47"
-        },
-        {
-            nom:"Consum energia",
-            unitat:"kWh",
-            valor:"2050"
-        }
-    ],
+document.getElementById(
+    "energiaEdifici"
+).innerHTML =
+    consumAvui.toFixed(0)
+    + " kWh";
 
-    "Planta 5":[
-        {
-            nom:"Temperatura",
-            unitat:"ºC",
-            valor:"24.0"
-        },
-        {
-            nom:"Humitat",
-            unitat:"%",
-            valor:"45"
-        },
-        {
-            nom:"Consum energia",
-            unitat:"kWh",
-            valor:"1750"
-        }
-    ]
+        /* =======================
+           TEMPERATURA
+           ======================= */
 
-};
+        const sensorsTemp = [
+
+    "0190_HV_S1_STPRO_TEMP.json",
+    "0190_HV_S2_STPRO_TEMP.json",
+    "0190_HV_S3_STPRO_TEMP.json",
+    "0190_HV_S4_STPRO_TEMP.json",
+    "0190_HV_S5_STPRO_TEMP.json"
+
+];
+
+let sumaTemp = 0;
+
+for(const fitxer of sensorsTemp){
+
+    const dades =
+        await llegirSensor(
+            "datos_sensores/" + fitxer
+        );
+
+    const ultimValor =
+        dades.values[
+            dades.values.length - 1
+        ];
+
+    sumaTemp += Number(ultimValor);
+
+}
+
+const temperaturaMitjana =
+    sumaTemp /
+    sensorsTemp.length;
+
+document.getElementById(
+    "temperaturaEdifici"
+).innerHTML =
+    temperaturaMitjana.toFixed(1)
+    + " °C";
+
+        /* =======================
+           HUMITAT
+           ======================= */
+
+       const sensorsHum = [
+
+    "0190_HV_S1_STPRO_HUM.json",
+    "0190_HV_S2_STPRO_HUM.json",
+    "0190_HV_S3_STPRO_HUM.json",
+    "0190_HV_S4_STPRO_HUM.json",
+    "0190_HV_S5_STPRO_HUM.json"
+
+];
+
+let sumaHum = 0;
+
+for(const fitxer of sensorsHum){
+
+    const dades =
+        await llegirSensor(
+            "datos_sensores/" + fitxer
+        );
+
+    const ultimValor =
+        dades.values[
+            dades.values.length - 1
+        ];
+
+    sumaHum += Number(ultimValor);
+
+}
+
+const humitatMitjana =
+    sumaHum /
+    sensorsHum.length;
+
+document.getElementById(
+    "humitatEdifici"
+).innerHTML =
+    humitatMitjana.toFixed(1)
+    + " %";
 
 /* ---------- carregar model ---------- */
 
@@ -355,7 +402,7 @@ loader.load(
 
         generarSelector();
 
-        mostrarSensors("totes");
+        carregarIndicadorsEdifici();
 
         console.log("Model carregat correctament");
     },
@@ -486,7 +533,7 @@ document
 
     const planta = this.value;
 
-    mostrarSensors(planta);
+    
 
     if(!model) return;
 
