@@ -362,6 +362,14 @@ document.getElementById(
 ).innerHTML =
     humitatMitjana.toFixed(1)
     + " %";
+    }
+    catch(error){
+        console.error(
+            "Error carregant indicadors",
+            error
+        );
+    }
+}
 
 /* ---------- carregar model ---------- */
 
