@@ -28,7 +28,11 @@ HEADER_SENSORS = {
     # energía base
     "0190_MV_C1_ASB_ACTIVEE",
     "0190_MV_CIA_EXPORT",
-    
+
+    # potencia total i factor de potencia
+    "0190_HV_C1_ASB_ACTIVEP",
+    "0190_HV_C1_ASB_PFACTOR",
+
 
     # climatización
     "0190_MV_C2_ASB_ACTIVEE",
