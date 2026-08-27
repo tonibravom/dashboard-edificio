@@ -245,7 +245,7 @@ loader.load(
 
 function obtenirPlanta(y){
 
-    if(y < -11.20){
+    if(y < -11.2){
         return "Soterrani";
     }
 
@@ -277,8 +277,9 @@ function obtenirPlanta(y){
 }
 
 
-
 function detectarPlantes(){
+
+    plantes.clear();
 
     model.traverse(function(node){
 
@@ -298,22 +299,27 @@ function detectarPlantes(){
         plantes.add(planta);
 
         console.log(
-            node.name,
-            "y =",
-            center.y,
-            "->",
-            planta
+            node.name + " -> " +
+            planta +
+            " (Y=" +
+            center.y.toFixed(2) +
+            ")"
         );
 
     });
 
 }
+
 /* ---------- selector ---------- */
+
 
 function generarSelector(){
 
     const select =
         document.getElementById("selectorPlanta");
+
+    select.innerHTML =
+        '<option value="totes">Edifici complet</option>';
 
     const ordre = [
         "Soterrani",
@@ -361,8 +367,16 @@ document
             return;
         }
 
-        node.visible =
-            node.userData.planta === planta;
+        if(planta === "totes"){
+
+    		node.visible = true;
+
+		} else {
+
+    		node.visible =
+        	node.userData.planta === planta;
+
+		}
 
     });
 
