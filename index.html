@@ -642,7 +642,12 @@ loader.load(
 
     function(gltf){
 
-        document.getElementById("loading").style.display="none";
+        const loading =
+    document.getElementById("loading");
+
+if(loading){
+    loading.style.display = "none";
+}
 
         model = gltf.scene;
 
