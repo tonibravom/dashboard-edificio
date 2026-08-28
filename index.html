@@ -145,6 +145,21 @@ canvas{
 
 }
 
+
+.clima-row{
+
+    display:flex;
+
+    gap:10px;
+
+}
+
+.clima-row .kpi-card{
+
+    flex:1;
+
+}
+
 .mini-kpi{
 
     flex:1;
@@ -325,7 +340,10 @@ canvas{
     </div>
 
 </div>
-    <div class="kpi-card">
+    
+    <div class="clima-row">
+
+	<div class="kpi-card">
 
         <div class="kpi-title">
             🌡 Temperatura media plantas
@@ -353,6 +371,7 @@ canvas{
 
     </div>
 
+</div>
 
 </div>
 
@@ -615,7 +634,6 @@ document.getElementById(
     + " kWh ("
     + pctAltres.toFixed(0)
     + "%)";
-``
 
 
 
