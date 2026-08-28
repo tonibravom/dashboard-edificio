@@ -610,20 +610,20 @@ if(graficaMix){
 
 graficaMix = new Chart(
 
-    document
-    .getElementById(
+    document.getElementById(
         "graficaEnergia"
     ),
 
     {
+
         type:"doughnut",
 
         data:{
 
             labels:[
-                "PLANTAS",
-                "CLIMATIZACIÓN",
-                "OTROS"
+                "Plantes",
+                "Climatització",
+                "Altres"
             ],
 
             datasets:[{
@@ -635,17 +635,20 @@ graficaMix = new Chart(
                 ],
 
                 backgroundColor:[
-    		"#2e7d32",   // plantes
-    		"#1976d2",   // clima
-    		"#ef6c00"    // altres
-			]
-		borderWidth:0,
-		cutout:"65%"
+                    "#2e7d32",
+                    "#1976d2",
+                    "#ef6c00"
+                ],
+
+                borderWidth:0
+
             }]
 
         },
 
         options:{
+
+            cutout:"65%",
 
             responsive:true,
 
