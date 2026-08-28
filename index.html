@@ -76,14 +76,14 @@ border:1px solid #dfe7ef;
 
     color:#56657a;
 
-    font-size:14px;
+    font-size:12px;
 
     margin-bottom:10px;
 
 }
 
 .kpi-value{
-    font-size:18px;
+    font-size:12px;
     font-weight:700;
     color:#14213d;
 
@@ -159,7 +159,7 @@ canvas{
 
     margin-bottom:8px;
 
-    font-size:13px;
+    font-size:12px;
 
     color:#56657a;
 
@@ -215,9 +215,53 @@ canvas{
 
     </div>
 
+    <div class="kpi-card">
 
+    	<div class="kpi-title">
+        	🥧 MIX CONSUMO HOY
+    	</div>
 
+    	<canvas
+        	id="graficaEnergia"
+        	width="250"
+        	height="250">
+    	</canvas>
 
+    <div id="mixLeyenda">
+
+    	<div class="mix-item">
+
+        	<span class="mix-color color-plantes"></span>
+
+        	<span id="lblPlantes">
+            	Energía plantas
+        	</span>
+
+    	</div>
+
+    	<div class="mix-item">
+
+        	<span class="mix-color color-clima"></span>
+
+        	<span id="lblClima">
+            	Energía climatitzación
+        	</span>
+
+    	</div>
+
+    	<div class="mix-item">
+
+        	<span class="mix-color color-altres"></span>
+
+        	<span id="lblAltres">
+            	Energía Otros
+        	</span>
+
+    	</div>
+
+     </div>
+
+</div>
 
 
 
@@ -276,69 +320,22 @@ canvas{
 
     </div>
 
-<div class="kpi-card">
 
-    <div class="kpi-title">
-        🥧 MIX CONSUMO HOY
-    </div>
+<div
+    id="cardPlanta"
+    class="kpi-card">
 
-    <canvas
-        id="graficaEnergia"
-        width="250"
-        height="250">
-    </canvas>
+<div
+     class="kpi-title"
+     id="tituloPlanta">
 
-<div id="mixLeyenda">
+     Planta 1
 
-    <div class="mix-item">
+ </div>
 
-        <span class="mix-color color-plantes"></span>
-
-        <span id="lblPlantes">
-            Energía plantas
-        </span>
-
-    </div>
-
-    <div class="mix-item">
-
-        <span class="mix-color color-clima"></span>
-
-        <span id="lblClima">
-            Energía climatitzación
-        </span>
-
-    </div>
-
-    <div class="mix-item">
-
-        <span class="mix-color color-altres"></span>
-
-        <span id="lblAltres">
-            Energía Otros
-        </span>
-
-    </div>
-
-</div>
-
-
-</div>
-    <div
-        id="cardPlanta"
-        class="kpi-card">
-
-        <div
-            class="kpi-title"
-            id="tituloPlanta">
-
-            Planta 1
-
-        </div>
-
-        <div id="planta_temp"></div>
-        <div id="planta_hum"></div>
-        <div id="planta_energia"></div>
+ <div id="planta_temp"></div>
+ <div id="planta_hum"></div>
+ <div id="planta_energia"></div>
 
     </div>
 
