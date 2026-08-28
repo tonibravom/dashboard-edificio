@@ -41,6 +41,12 @@ html,body{
 
 #panelDatos{
 
+    position:absolute;
+
+    left:0;
+    top:0;
+    bottom:0;
+
     width:350px;
 
     padding:20px;
@@ -83,32 +89,12 @@ border:1px solid #dfe7ef;
     color:#14213d;
 
 }
-.columna{
-    flex:1;
-    border-right:1px solid #333;
-    position:relative;
-}
 
 .columna:last-child{
     border-right:none;
 }
 
-#esquerra{
-    background:#121212;
-    padding:12px;
-    color:white;
-    overflow-y:auto;
-}
 
-#dreta{
-    background:#121212;
-    padding:20px;
-    color:white;
-}
-
-#centre{
-    background:#dfe6ee;
-}
 
 canvas{
     width:100%;
@@ -140,45 +126,16 @@ canvas{
 }
 
 
-#plantaActual{
-    margin-top:15px;
-    margin-bottom:15px;
-    font-size:20px;
-    font-weight:bold;
-    color:#4caf50;
-}
-
-.sensor{
-    background:#1f1f1f;
-    border:1px solid #333;
-    border-radius:8px;
-    padding:8px;
-    margin-bottom:8px;
-}
-
-.sensor .nom{
-    font-size:14px;
-    font-weight:600;
-    margin-bottom:4px;
-    color:#d0d0d0;
-}
-
-
-.sensor .valor{
-    font-size:18px;
-    font-weight:bold;
-    color:#6ec6ff;
-    word-wrap:break-word;
-}
-
 #visorContainer{
 
-    flex:1;
+    position:absolute;
 
-    position:relative;
+    left:350px;
+    right:0;
+    top:0;
+    bottom:0;
 
 }
-
 #visor3d{
 
     width:100%;
@@ -221,6 +178,33 @@ canvas{
 
     </div>
 
+<div class="kpi-card">
+    <div class="kpi-title">
+        🔌 Potència activa
+    </div>
+
+    <div
+        id="potenciaActiva"
+        class="kpi-value">
+
+        --
+
+    </div>
+</div>
+
+<div class="kpi-card">
+    <div class="kpi-title">
+        📈 Factor de potència
+    </div>
+
+    <div
+        id="factorPotencia"
+        class="kpi-value">
+
+        --
+
+    </div>
+</div>
     <div class="kpi-card">
 
         <div class="kpi-title">
@@ -249,6 +233,19 @@ canvas{
 
     </div>
 
+<div class="kpi-card">
+
+    <div class="kpi-title">
+        🥧 Repartiment energètic
+    </div>
+
+    <canvas
+        id="graficaEnergia"
+        width="250"
+        height="250">
+    </canvas>
+
+</div>
     <div
         id="cardPlanta"
         class="kpi-card">
