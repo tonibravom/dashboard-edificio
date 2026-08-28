@@ -6,7 +6,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Gemelo Digital Avinyó 7</title>
+<title>BUILDING MONITOR Carrer Avinyó, 7</title>
 
 <script src="https://unpkg.com/three@0.128.0/build/three.min.js"></script>
 
@@ -144,6 +144,54 @@ canvas{
 
 }
 
+
+#mixLeyenda{
+
+    margin-top:15px;
+
+}
+
+.mix-item{
+
+    display:flex;
+
+    align-items:center;
+
+    margin-bottom:8px;
+
+    font-size:13px;
+
+    color:#56657a;
+
+}
+
+.mix-color{
+
+    width:12px;
+
+    height:12px;
+
+    border-radius:50%;
+
+    margin-right:8px;
+
+}
+
+.color-plantes{
+    background:#2e7d32;
+}
+
+.color-clima{
+    background:#1976d2;
+}
+
+.color-altres{
+    background:#ef6c00;
+}
+
+
+
+
 </style>
 
 </head>
@@ -155,19 +203,7 @@ canvas{
     <div class="kpi-card">
 
         <div class="kpi-title">
-            Seleccionar planta
-        </div>
-
-        <select id="selectorPlanta">
-            <option>Edifici complet</option>
-        </select>
-
-    </div>
-
-    <div class="kpi-card">
-
-        <div class="kpi-title">
-            ⚡ Energia consumida avui
+            ⚡ EnergÍa total consumida AVUI
         </div>
 
         <div
@@ -236,7 +272,7 @@ canvas{
 <div class="kpi-card">
 
     <div class="kpi-title">
-        🥧 Repartiment energètic
+        🥧 MIX CONSUMO HOY
     </div>
 
     <canvas
@@ -244,6 +280,41 @@ canvas{
         width="250"
         height="250">
     </canvas>
+
+<div id="mixLeyenda">
+
+    <div class="mix-item">
+
+        <span class="mix-color color-plantes"></span>
+
+        <span id="lblPlantes">
+            Energía plantas
+        </span>
+
+    </div>
+
+    <div class="mix-item">
+
+        <span class="mix-color color-clima"></span>
+
+        <span id="lblClima">
+            Energía climatitzación
+        </span>
+
+    </div>
+
+    <div class="mix-item">
+
+        <span class="mix-color color-altres"></span>
+
+        <span id="lblAltres">
+            Energía Otros
+        </span>
+
+    </div>
+
+</div>
+
 
 </div>
     <div
@@ -268,6 +339,18 @@ canvas{
 
 <div id="visorContainer">
 
+    <div class="selector">
+
+        <label>
+            Planta
+        </label>
+
+        <select id="selectorPlanta">
+            <option>Edifici complet</option>
+        </select>
+
+    </div>
+
     <canvas id="visor3d"></canvas>
 
 </div>
@@ -279,6 +362,7 @@ canvas{
 let model = null;
 const plantes = new Set();
 
+let graficaMix = null;
 const container = document.getElementById("visorContainer");
 const canvas = document.getElementById("visor3d");
 
@@ -483,7 +567,48 @@ const pctAltres =
     * 100;
 
 
-new Chart(
+document.getElementById(
+    "lblPlantes"
+).innerHTML =
+
+    "Energía plantas: "
+    + energiaPlantes.toFixed(0)
+    + " kWh ("
+    + pctPlantes.toFixed(0)
+    + "%)";
+
+document.getElementById(
+    "lblClima"
+).innerHTML =
+
+    "Energía climatitzación: "
+    + energiaClima.toFixed(0)
+    + " kWh ("
+    + pctClima.toFixed(0)
+    + "%)";
+
+document.getElementById(
+    "lblAltres"
+).innerHTML =
+
+    "Energía Otros: "
+    + energiaAltres.toFixed(0)
+    + " kWh ("
+    + pctAltres.toFixed(0)
+    + "%)";
+``
+
+
+
+
+
+if(graficaMix){
+
+    graficaMix.destroy();
+
+}
+
+graficaMix = new Chart(
 
     document
     .getElementById(
@@ -491,14 +616,14 @@ new Chart(
     ),
 
     {
-        type:"pie",
+        type:"doughnut",
 
         data:{
 
             labels:[
-                "Plantes",
-                "Climatització",
-                "Altres"
+                "PLANTAS",
+                "CLIMATIZACIÓN",
+                "OTROS"
             ],
 
             datasets:[{
@@ -510,11 +635,12 @@ new Chart(
                 ],
 
                 backgroundColor:[
-    "#2e7d32",   // plantes
-    "#1976d2",   // clima
-    "#ef6c00"    // altres
-]
-
+    		"#2e7d32",   // plantes
+    		"#1976d2",   // clima
+    		"#ef6c00"    // altres
+			]
+		borderWidth:0,
+		cutout:"65%"
             }]
 
         },
@@ -526,7 +652,7 @@ new Chart(
             plugins:{
 
                 legend:{
-                    position:"bottom"
+                    display:false
                 }
 
             }
