@@ -1,5 +1,5 @@
 {
-  "generado": "2026-09-01T07:00:36.708628",
+  "generado": "2026-09-01T10:47:33.017805",
   "sensores": {
     "0190_MV_C1_ASB_ACTIVEE": {
       "descripcion": "Energia importada",
@@ -11,15 +11,55 @@
       "unidad": "kWh",
       "archivo": "0190_MV_CIA_EXPORT.json"
     },
+    "0190_MV_C1_ASB_REACTIVEE": {
+      "descripcion": "Energia Reactiva Total",
+      "unidad": "kVArh",
+      "archivo": "0190_MV_C1_ASB_REACTIVEE.json"
+    },
     "0190_HV_C1_ASB_ACTIVEP": {
       "descripcion": "Potencia Activa Total",
       "unidad": "kW",
       "archivo": "0190_HV_C1_ASB_ACTIVEP.json"
     },
+    "0190_HV_C1_ASB_REACTIVEP": {
+      "descripcion": "Potencia Reactiva Total",
+      "unidad": "kVAr",
+      "archivo": "0190_HV_C1_ASB_REACTIVEP.json"
+    },
     "0190_HV_C1_ASB_PFACTOR": {
       "descripcion": "Factor de potencia total",
       "unidad": "n.a.",
       "archivo": "0190_HV_C1_ASB_PFACTOR.json"
+    },
+    "0190_HV_C1_ASB_CURRL1": {
+      "descripcion": "Intensidad acometida F1",
+      "unidad": "A",
+      "archivo": "0190_HV_C1_ASB_CURRL1.json"
+    },
+    "0190_HV_C1_ASB_CURRL2": {
+      "descripcion": "Intensidad acometida F2",
+      "unidad": "A",
+      "archivo": "0190_HV_C1_ASB_CURRL2.json"
+    },
+    "0190_HV_C1_ASB_CURRL3": {
+      "descripcion": "Intensidad acometida F3",
+      "unidad": "A",
+      "archivo": "0190_HV_C1_ASB_CURRL3.json"
+    },
+    "0190_HV_C1_ASB_VOLTL1": {
+      "descripcion": "Tensión acometida F1",
+      "unidad": "V",
+      "archivo": "0190_HV_C1_ASB_VOLTL1.json"
+    },
+    "0190_HV_C1_ASB_VOLTL2": {
+      "descripcion": "Tensión acometida F2",
+      "unidad": "V",
+      "archivo": "0190_HV_C1_ASB_VOLTL2.json"
+    },
+    "0190_HV_C1_ASB_VOLTL3": {
+      "descripcion": "Tensión acometida F3",
+      "unidad": "V",
+      "archivo": "0190_HV_C1_ASB_VOLTL3.json"
     },
     "0190_MV_C2_ASB_ACTIVEE": {
       "descripcion": "Clima (P1, P2 i P3) Energia activa",

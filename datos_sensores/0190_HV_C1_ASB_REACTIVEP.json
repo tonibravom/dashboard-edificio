@@ -3,10 +3,6 @@
   "descripcion": "Potencia Reactiva Total",
   "unidad": "kVAr",
   "tipo_dato": "instantaneo",
-  "labels": [
-    "2026-02-05T17:45:02"
-  ],
-  "values": [
-    2.38433
-  ]
+  "labels": [],
+  "values": []
 }
