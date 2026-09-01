@@ -1,5 +1,5 @@
 {
-  "generado": "2026-09-01T10:47:33.017805",
+  "generado": "2026-09-01T12:31:26.481060",
   "sensores": {
     "0190_MV_C1_ASB_ACTIVEE": {
       "descripcion": "Energia importada",
@@ -70,6 +70,11 @@
       "descripcion": "Clima (P4) Energia activa",
       "unidad": "kWh",
       "archivo": "0190_MV_C41_CGEM21_EACTIVA.json"
+    },
+    "0190_MV_C3_CGEM21_EACTIVA": {
+      "descripcion": "Local Energia activa",
+      "unidad": "kWh",
+      "archivo": "0190_MV_C3_CGEM21_EACTIVA.json"
     },
     "0190_MV_C10_CGEM21_EACTIVA": {
       "descripcion": "Planta 1 Total Energia activa",
