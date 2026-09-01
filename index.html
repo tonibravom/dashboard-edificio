@@ -868,11 +868,6 @@ camera.position.set(
     29.03
 );
 
-controls.target.set(
-    0,
-    0.49,
-    0
-);
 
 const renderer = new THREE.WebGLRenderer({
     canvas:canvas,
@@ -889,6 +884,12 @@ renderer.setPixelRatio(window.devicePixelRatio);
 const controls = new THREE.OrbitControls(
     camera,
     renderer.domElement
+);
+
+controls.target.set(
+    0,
+    0.49,
+    0
 );
 
 const raycaster =
