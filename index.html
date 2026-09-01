@@ -466,9 +466,16 @@ canvas{
 
         	<span class="mix-color color-altres"></span>
 
-        	<span id="lblAltres">
-            	Energía Otros
-        	</span>
+        	<span
+    id="lblAltres"
+    onclick="mostrarDetallAltres()"
+    style="
+        cursor:pointer;
+        text-decoration:underline;
+    ">
+    Energía Otros
+</span>
+
 
     	</div>
 
@@ -604,7 +611,30 @@ canvas{
 
 </div>
 
+<div id="modalAltres" class="modal-overlay">
 
+    <div class="modal-content">
+
+        <div class="modal-header">
+
+            <h3>Energía Otros</h3>
+
+            <button
+                class="modal-close"
+                onclick="tancarModalAltres()">
+
+                ✕
+
+            </button>
+
+        </div>
+
+        <div id="modalAltresBody">
+        </div>
+
+    </div>
+
+</div>
 
 
 
@@ -1550,7 +1580,96 @@ async function ultimValorSensor(fitxer){
 
 }
 
+async function mostrarDetallAltres(){
 
+    const energiaLocal =
+
+        await energiaDia(
+            "0190_MV_C3_CGEM21_EACTIVA.json"
+        );
+
+    const energiaPlantes =
+
+          await energiaDia(
+          "0190_MV_C10_CGEM21_EACTIVA.json"
+          )
+
+        + await energiaDia(
+          "0190_MV_C20_CGEM21_EACTIVA.json"
+          )
+
+        + await energiaDia(
+          "0190_MV_C30_CGEM21_EACTIVA.json"
+          )
+
+        + await energiaDia(
+          "0190_MV_C40_CGEM21_EACTIVA.json"
+          )
+
+        + await energiaDia(
+          "0190_MV_C50_CGEM21_EACTIVA.json"
+          );
+
+    const energiaClima =
+
+          await energiaDia(
+          "0190_MV_C2_ASB_ACTIVEE.json"
+          )
+
+        + await energiaDia(
+          "0190_MV_C41_CGEM21_EACTIVA.json"
+          );
+
+    const energiaTotal =
+
+        await energiaDia(
+            "0190_MV_C1_ASB_ACTIVEE.json"
+        );
+
+    const energiaAltres =
+
+        energiaTotal
+        - energiaPlantes
+        - energiaClima;
+
+    const serveisComuns =
+
+        energiaAltres
+        - energiaLocal;
+
+    document.getElementById(
+        "modalAltresBody"
+    ).innerHTML =
+
+        `<div class="detall-row">
+
+            <div class="detall-nom">
+                Energía consumida local
+            </div>
+
+            <div class="detall-valor">
+                ${energiaLocal.toFixed(0)} kWh
+            </div>
+
+        </div>
+
+        <div class="detall-row">
+
+            <div class="detall-nom">
+                Energía consumida servicios comunes
+            </div>
+
+            <div class="detall-valor">
+                ${serveisComuns.toFixed(0)} kWh
+            </div>
+
+        </div>`;
+
+    document.getElementById(
+        "modalAltres"
+    ).style.display = "flex";
+
+}
 
 async function mostrarDetallClima(){
 
@@ -1736,6 +1855,14 @@ function tancarModalClima(){
 
 }
 
+function tancarModalAltres(){
+
+    document.getElementById(
+        "modalAltres"
+    ).style.display = "none";
+
+}
+
 function tancarModalElectric(){
 
     document.getElementById(
@@ -1779,6 +1906,28 @@ document
     }
 
 );
+
+document
+.getElementById("modalAltres")
+.addEventListener(
+
+    "click",
+
+    function(e){
+
+        if(
+            e.target.id ===
+            "modalAltres"
+        ){
+
+            tancarModalAltres();
+
+        }
+
+    }
+
+);
+
 
 document
 .getElementById("modalElectric")
