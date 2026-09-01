@@ -898,21 +898,8 @@ graficaMix = new Chart(
 
             plugins:{
 
-tooltip:{
-
-    callbacks:{
-
-        label:function(context){
-
-            return context.label
-                + ": "
-                + context.raw.toFixed(0)
-                + "%";
-
-        }
-
-    }
-
+ttooltip:{
+    enabled:false
 },
 
                 legend:{
