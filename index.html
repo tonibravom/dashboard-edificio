@@ -705,6 +705,12 @@ canvas{
     Y: <span id="coordY">0</span><br>
     Z: <span id="coordZ">0</span>
 
+    <hr>
+
+    Cam X: <span id="camX">0</span><br>
+    Cam Y: <span id="camY">0</span><br>
+    Cam Z: <span id="camZ">0</span>
+
 </div>
 
     <canvas id="visor3d"></canvas>
@@ -2146,6 +2152,18 @@ function animate(){
     controls.update();
 
 actualitzarEtiquetes();
+
+
+document.getElementById("camX").innerHTML =
+    camera.position.x.toFixed(2);
+
+document.getElementById("camY").innerHTML =
+    camera.position.y.toFixed(2);
+
+document.getElementById("camZ").innerHTML =
+    camera.position.z.toFixed(2);
+
+
 
 renderer.render(
     scene,
