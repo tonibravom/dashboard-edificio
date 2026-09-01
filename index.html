@@ -325,9 +325,17 @@ canvas{
 
         	<span class="mix-color color-clima"></span>
 
-        	<span id="lblClima">
-            	Energía climatitzación
-        	</span>
+        	<span
+    id="lblClima"
+    onclick="mostrarDetallClima()"
+    style="
+        cursor:pointer;
+        text-decoration:underline;
+    ">
+
+    Energía climatitzación
+
+</span>
 
     	</div>
 
@@ -737,6 +745,23 @@ graficaMix = new Chart(
 
             plugins:{
 
+tooltip:{
+
+    callbacks:{
+
+        label:function(context){
+
+            return context.label
+                + ": "
+                + context.raw.toFixed(0)
+                + "%";
+
+        }
+
+    }
+
+},
+
                 legend:{
                     display:false
                 }
@@ -1059,6 +1084,52 @@ document
 
 
 /* ---------- render ---------- */
+
+
+async function mostrarDetallClima(){
+
+    const clima123 =
+        await energiaDia(
+            "0190_MV_C2_ASB_ACTIVEE.json"
+        );
+
+    const clima45 =
+        await energiaDia(
+            "0190_MV_C41_CGEM21_EACTIVA.json"
+        );
+
+    alert(
+
+        "DETALLE CONSUMO ENERGÍA CLIMATITZACIÓN\n\n"
+
+        +
+
+        "Energía climatitzación plantas 1, 2 y 3\n"
+
+        +
+
+        clima123.toFixed(0)
+
+        +
+
+        " kWh\n\n"
+
+        +
+
+        "Energía climatitzación plantas 4 y 5\n"
+
+        +
+
+        clima45.toFixed(0)
+
+        +
+
+        " kWh"
+
+    );
+
+}
+
 
 function animate(){
 
