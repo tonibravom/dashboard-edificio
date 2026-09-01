@@ -496,9 +496,17 @@ canvas{
 
 	<div class="kpi-card">
 
-        <div class="kpi-title">
-            🌡 Temperatura media plantas
-        </div>
+        <div
+    class="kpi-title"
+    onclick="mostrarDetallTemperatura()"
+    style="
+        cursor:pointer;
+        text-decoration:underline;
+    ">
+
+    🌡 Temperatura plantas
+
+</div>
 
         <div
             id="ed_temp"
@@ -510,9 +518,17 @@ canvas{
 
     <div class="kpi-card">
 
-        <div class="kpi-title">
-            💧 Humedad relativa media plantas
-        </div>
+        <div
+    class="kpi-title"
+    onclick="mostrarDetallHumitat()"
+    style="
+        cursor:pointer;
+        text-decoration:underline;
+    ">
+
+    💧 Humedad relativa plantas
+
+</div>
 
         <div
             id="ed_hum"
@@ -601,6 +617,65 @@ canvas{
     </div>
 
 </div>
+
+<div id="modalTemperatura" class="modal-overlay">
+
+    <div class="modal-content">
+
+        <div class="modal-header">
+
+            <h3>
+                Temperatura por plantas
+            </h3>
+
+            <button
+                class="modal-close"
+                onclick="tancarModalTemperatura()">
+
+                ✕
+
+            </button>
+
+        </div>
+
+        <div id="modalTemperaturaBody">
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<div id="modalHumitat" class="modal-overlay">
+
+    <div class="modal-content">
+
+        <div class="modal-header">
+
+            <h3>
+                Humedad relativa por plantas
+            </h3>
+
+            <button
+                class="modal-close"
+                onclick="tancarModalHumitat()">
+
+                ✕
+
+            </button>
+
+        </div>
+
+        <div id="modalHumitatBody">
+
+        </div>
+
+    </div>
+
+</div>
+
+
 
 <script>
 
@@ -1305,6 +1380,102 @@ async function mostrarDetallPlantes(){
 
 }
 
+async function mostrarDetallTemperatura(){
+
+    const sensors = [
+
+        ["Planta 1","0190_HV_S1_STPRO_TEMP.json"],
+        ["Planta 2","0190_HV_S2_STPRO_TEMP.json"],
+        ["Planta 3","0190_HV_S3_STPRO_TEMP.json"],
+        ["Planta 4","0190_HV_S4_STPRO_TEMP.json"],
+        ["Planta 5","0190_HV_S5_STPRO_TEMP.json"]
+
+    ];
+
+    let html = "";
+
+    for(const s of sensors){
+
+        const dades =
+            await llegirSensor(
+                "datos_sensores/" + s[1]
+            );
+
+        const valor =
+            dades.values[
+                dades.values.length - 1
+            ];
+
+        html += `
+            <div class="detall-row">
+                <div class="detall-nom">
+                    ${s[0]}
+                </div>
+                <div class="detall-valor">
+                    ${valor.toFixed(1)} °C
+                </div>
+            </div>
+        `;
+    }
+
+    document.getElementById(
+        "modalTemperaturaBody"
+    ).innerHTML = html;
+
+    document.getElementById(
+        "modalTemperatura"
+    ).style.display = "flex";
+}
+
+
+async function mostrarDetallHumitat(){
+
+    const sensors = [
+
+        ["Planta 1","0190_HV_S1_STPRO_HUM.json"],
+        ["Planta 2","0190_HV_S2_STPRO_HUM.json"],
+        ["Planta 3","0190_HV_S3_STPRO_HUM.json"],
+        ["Planta 4","0190_HV_S4_STPRO_HUM.json"],
+        ["Planta 5","0190_HV_S5_STPRO_HUM.json"]
+
+    ];
+
+    let html = "";
+
+    for(const s of sensors){
+
+        const dades =
+            await llegirSensor(
+                "datos_sensores/" + s[1]
+            );
+
+        const valor =
+            dades.values[
+                dades.values.length - 1
+            ];
+
+        html += `
+            <div class="detall-row">
+                <div class="detall-nom">
+                    ${s[0]}
+                </div>
+                <div class="detall-valor">
+                    ${valor.toFixed(0)} %
+                </div>
+            </div>
+        `;
+    }
+
+    document.getElementById(
+        "modalHumitatBody"
+    ).innerHTML = html;
+
+    document.getElementById(
+        "modalHumitat"
+    ).style.display = "flex";
+}
+
+
 async function mostrarDetallClima(){
 
     const clima123 =
@@ -1367,6 +1538,19 @@ function tancarModalClima(){
 
 }
 
+function tancarModalTemperatura(){
+
+    document.getElementById(
+        "modalTemperatura"
+    ).style.display = "none";
+}
+
+function tancarModalHumitat(){
+
+    document.getElementById(
+        "modalHumitat"
+    ).style.display = "none";
+}
 
 
 document
