@@ -344,7 +344,33 @@ canvas{
 }
 
 
+.btn-detall-electric{
 
+    width:100%;
+
+    margin-top:8px;
+
+    padding:6px;
+
+    border:none;
+
+    border-radius:6px;
+
+    background:#1976d2;
+
+    color:white;
+
+    cursor:pointer;
+
+    font-size:11px;
+
+}
+
+.btn-detall-electric:hover{
+
+    background:#1565c0;
+
+}
 
 
 
@@ -488,7 +514,17 @@ canvas{
 
         </div>
 
+
+
     </div>
+
+<button
+    class="btn-detall-electric"
+    onclick="mostrarDetallElectric()">
+
+    Ver detalle variables eléctricas
+
+</button>
 
 </div>
     
@@ -567,6 +603,9 @@ canvas{
     </div>
 
 </div>
+
+
+
 
 
 
@@ -675,7 +714,29 @@ canvas{
 
 </div>
 
+<div id="modalElectric" class="modal-overlay">
 
+    <div class="modal-content">
+
+        <div class="modal-header">
+
+            <h3>Variables eléctricas</h3>
+
+            <button
+                class="modal-close"
+                onclick="tancarModalElectric()">
+
+                ✕
+
+            </button>
+
+        </div>
+
+        <div id="modalElectricBody"></div>
+
+    </div>
+
+</div>
 
 <script>
 
@@ -1476,6 +1537,21 @@ async function mostrarDetallHumitat(){
 }
 
 
+async function ultimValorSensor(fitxer){
+
+    const dades =
+        await llegirSensor(
+            "datos_sensores/" + fitxer
+        );
+
+    return dades.values[
+        dades.values.length - 1
+    ];
+
+}
+
+
+
 async function mostrarDetallClima(){
 
     const clima123 =
@@ -1522,6 +1598,136 @@ async function mostrarDetallClima(){
 
 }
 
+async function mostrarDetallElectric(){
+
+    const variables = [
+
+        {
+            sensor:
+                "0190_HV_C1_ASB_ACTIVEP.json",
+            descripcio:
+                "Potencia Activa Total",
+            unitat:
+                "kW"
+        },
+
+        {
+            sensor:
+                "0190_HV_C1_ASB_REACTIVEP.json",
+            descripcio:
+                "Potencia Reactiva Total",
+            unitat:
+                "kVAr"
+        },
+
+        {
+            sensor:
+                "0190_HV_C1_ASB_PFACTOR.json",
+            descripcio:
+                "Factor de potencia total",
+            unitat:
+                ""
+        },
+
+        {
+            sensor:
+                "0190_HV_C1_ASB_CURRL1.json",
+            descripcio:
+                "Intensidad acometida F1",
+            unitat:
+                "A"
+        },
+
+        {
+            sensor:
+                "0190_HV_C1_ASB_CURRL2.json",
+            descripcio:
+                "Intensidad acometida F2",
+            unitat:
+                "A"
+        },
+
+        {
+            sensor:
+                "0190_HV_C1_ASB_CURRL3.json",
+            descripcio:
+                "Intensidad acometida F3",
+            unitat:
+                "A"
+        },
+
+        {
+            sensor:
+                "0190_HV_C1_ASB_VOLTL1.json",
+            descripcio:
+                "Tensión acometida F1",
+            unitat:
+                "V"
+        },
+
+        {
+            sensor:
+                "0190_HV_C1_ASB_VOLTL2.json",
+            descripcio:
+                "Tensión acometida F2",
+            unitat:
+                "V"
+        },
+
+        {
+            sensor:
+                "0190_HV_C1_ASB_VOLTL3.json",
+            descripcio:
+                "Tensión acometida F3",
+            unitat:
+                "V"
+        }
+
+    ];
+
+    let html = "";
+
+    for(const v of variables){
+
+        const valor =
+            await ultimValorSensor(
+                v.sensor
+            );
+
+        html += `
+
+        <div class="detall-row">
+
+            <div class="detall-nom">
+
+                ${v.descripcio}
+
+            </div>
+
+            <div class="detall-valor">
+
+                ${Number(valor).toFixed(2)}
+                ${v.unitat}
+
+            </div>
+
+        </div>
+
+        `;
+
+    }
+
+    document.getElementById(
+        "modalElectricBody"
+    ).innerHTML = html;
+
+    document.getElementById(
+        "modalElectric"
+    ).style.display = "flex";
+
+}
+
+
 function tancarModalPlantes(){
 
     document.getElementById(
@@ -1534,6 +1740,14 @@ function tancarModalClima(){
 
     document.getElementById(
         "modalClima"
+    ).style.display = "none";
+
+}
+
+function tancarModalElectric(){
+
+    document.getElementById(
+        "modalElectric"
     ).style.display = "none";
 
 }
@@ -1567,6 +1781,27 @@ document
         ){
 
             tancarModalClima();
+
+        }
+
+    }
+
+);
+
+document
+.getElementById("modalElectric")
+.addEventListener(
+
+    "click",
+
+    function(e){
+
+        if(
+            e.target.id ===
+            "modalElectric"
+        ){
+
+            tancarModalElectric();
 
         }
 
