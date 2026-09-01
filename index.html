@@ -344,6 +344,24 @@ canvas{
 }
 
 
+.mix-link{
+
+    cursor:pointer;
+
+    color:#2e7d32;
+
+    font-weight:600;
+
+}
+
+.mix-link:hover{
+
+    text-decoration:underline;
+
+}
+
+
+
 </style>
 
 </head>
@@ -397,9 +415,13 @@ canvas{
 
         	<span class="mix-color color-plantes"></span>
 
-        	<span id="lblPlantes">
-            	Energía plantas
-        	</span>
+        	<span
+    id="lblPlantes"
+    class="mix-link">
+
+    Energía plantas
+
+</span>
 
     	</div>
 
@@ -1195,6 +1217,75 @@ document
 
 /* ---------- render ---------- */
 
+async function mostrarDetallPlantes(){
+
+    const plantes = [
+
+        {
+            nom:"Planta 1",
+            fitxer:
+            "0190_MV_C10_CGEM21_EACTIVA.json"
+        },
+
+        {
+            nom:"Planta 2",
+            fitxer:
+            "0190_MV_C20_CGEM21_EACTIVA.json"
+        },
+
+        {
+            nom:"Planta 3",
+            fitxer:
+            "0190_MV_C30_CGEM21_EACTIVA.json"
+        },
+
+        {
+            nom:"Planta 4",
+            fitxer:
+            "0190_MV_C40_CGEM21_EACTIVA.json"
+        },
+
+        {
+            nom:"Planta 5",
+            fitxer:
+            "0190_MV_C50_CGEM21_EACTIVA.json"
+        }
+
+    ];
+
+    let html = "";
+
+    for(const p of plantes){
+
+        const energia =
+            await energiaDia(
+                p.fitxer
+            );
+
+        html += `
+            <div class="detall-row">
+
+                <div class="detall-nom">
+                    ${p.nom}
+                </div>
+
+                <div class="detall-valor">
+                    ${energia.toFixed(0)} kWh
+                </div>
+
+            </div>
+        `;
+    }
+
+    document.getElementById(
+        "contingutPlantes"
+    ).innerHTML = html;
+
+    document.getElementById(
+        "modalPlantes"
+    ).style.display = "flex";
+
+}
 
 async function mostrarDetallClima(){
 
@@ -1242,6 +1333,13 @@ async function mostrarDetallClima(){
 
 }
 
+function tancarModalPlantes(){
+
+    document.getElementById(
+        "modalPlantes"
+    ).style.display = "none";
+
+}
 
 function tancarModalClima(){
 
@@ -1250,6 +1348,13 @@ function tancarModalClima(){
     ).style.display = "none";
 
 }
+
+document
+.getElementById("lblPlantes")
+.addEventListener(
+    "click",
+    mostrarDetallPlantes
+);
 
 document
 .getElementById("modalClima")
@@ -1271,6 +1376,25 @@ document
     }
 
 );
+
+document
+.getElementById("modalPlantes")
+.addEventListener(
+    "click",
+    function(e){
+
+        if(
+            e.target.id ===
+            "modalPlantes"
+        ){
+
+            tancarModalPlantes();
+
+        }
+
+    }
+);
+
 
 function animate(){
 
@@ -1303,6 +1427,38 @@ window.addEventListener("resize",()=>{
 
 
 </script>
+
+<div id="modalPlantes" class="modal">
+
+    <div class="modal-content">
+
+        <span id="tancarModalPlantes">
+            &times;
+        </span>
+
+        <div class="modal-header">
+
+    <h3>
+        Energía plantas HOY
+    </h3>
+
+    <button
+        class="modal-close"
+        onclick="tancarModalPlantes()">
+
+        ✕
+
+    </button>
+
+</div>
+
+        <div id="contingutPlantes">
+
+        </div>
+
+    </div>
+
+</div>
 
 </body>
 </html>
