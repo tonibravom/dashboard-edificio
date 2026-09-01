@@ -225,7 +225,41 @@ canvas{
     background:#ef6c00;
 }
 
+#cabeceraPanel{
 
+    display:flex;
+
+    justify-content:space-between;
+
+    align-items:flex-start;
+
+    margin-bottom:10px;
+
+}
+
+#tituloEdificio{
+
+    font-size:18px;
+
+    font-weight:700;
+
+    color:#14213d;
+
+    line-height:1.2;
+
+}
+
+#fechaActualizacion{
+
+    font-size:11px;
+
+    color:#7a8796;
+
+    text-align:right;
+
+    white-space:nowrap;
+
+}
 
 
 </style>
@@ -235,6 +269,18 @@ canvas{
 <body>
 
 <div id="panelDatos">
+
+<div id="cabeceraPanel">
+
+    <div id="tituloEdificio">
+        Edificio Calle Ejemplo, 1
+    </div>
+
+    <div id="fechaActualizacion">
+        --
+    </div>
+
+</div>
 
 
     <div class="kpi-card">
@@ -324,7 +370,7 @@ canvas{
         <div class="mini-kpi">
 
             <div class="mini-title">
-                📈 cos&#946
+                📈 Factor de potencia
             </div>
 
             <div
@@ -786,6 +832,18 @@ document.getElementById(
 ).innerHTML =
     humitatMitjana.toFixed(1)
     + " %";
+    
+const ara = new Date();
+
+document.getElementById(
+    "fechaActualizacion"
+).innerHTML =
+
+    ara.toLocaleDateString("es-ES")
+    + "<br>"
+    + ara.toLocaleTimeString("es-ES");
+
+
     }
     catch(error){
         console.error(
