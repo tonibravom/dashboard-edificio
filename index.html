@@ -561,7 +561,7 @@ canvas{
 
     <div class="selector">
 
-        <label>
+        <label for="selectorPlanta">
             Planta
         </label>
 
@@ -996,15 +996,11 @@ const fecha =
 if(fecha){
 
     fecha.innerHTML =
-
         ara.toLocaleDateString("es-ES")
-
         + "<br>"
-
         + ara.toLocaleTimeString("es-ES");
 
 }
-
     ara.toLocaleDateString("es-ES")
     + "<br>"
     + ara.toLocaleTimeString("es-ES");
@@ -1072,11 +1068,12 @@ if(loading){
 
     function(error){
 
-        console.error(error);
+    console.error(
+        "Error cargando avinyo7edifici.glb",
+        error
+    );
 
-        document.getElementById("loading").innerHTML =
-            "Error carregant avinyo7edifici.glb";
-    }
+}
 
 );
 
