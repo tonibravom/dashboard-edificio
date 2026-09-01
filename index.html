@@ -261,6 +261,88 @@ canvas{
 
 }
 
+.modal-overlay{
+
+    position:fixed;
+
+    inset:0;
+
+    background:rgba(0,0,0,.45);
+
+    display:none;
+
+    justify-content:center;
+
+    align-items:center;
+
+    z-index:5000;
+
+}
+
+.modal-content{
+
+    width:500px;
+
+    background:white;
+
+    border-radius:12px;
+
+    padding:20px;
+
+    box-shadow:0 10px 30px rgba(0,0,0,.2);
+
+}
+
+.modal-header{
+
+    display:flex;
+
+    justify-content:space-between;
+
+    align-items:center;
+
+    margin-bottom:15px;
+
+}
+
+.modal-close{
+
+    border:none;
+
+    background:none;
+
+    cursor:pointer;
+
+    font-size:20px;
+
+}
+
+.detall-row{
+
+    display:flex;
+
+    justify-content:space-between;
+
+    padding:8px 0;
+
+    border-bottom:1px solid #ececec;
+
+}
+
+.detall-nom{
+
+    color:#56657a;
+
+}
+
+.detall-valor{
+
+    font-weight:700;
+
+    color:#14213d;
+
+}
+
 
 </style>
 
@@ -428,6 +510,34 @@ canvas{
 </div>
 
 </div>
+
+<div id="modalClima" class="modal-overlay">
+
+    <div class="modal-content">
+
+        <div class="modal-header">
+
+            <h3>Energía climatitzación</h3>
+
+            <button
+                class="modal-close"
+                onclick="tancarModalClima()">
+
+                ✕
+
+            </button>
+
+        </div>
+
+        <div id="modalClimaBody">
+
+        </div>
+
+    </div>
+
+</div>
+
+
 
 <div id="visorContainer">
 
@@ -1098,38 +1208,69 @@ async function mostrarDetallClima(){
             "0190_MV_C41_CGEM21_EACTIVA.json"
         );
 
-    alert(
+    document.getElementById(
+        "modalClimaBody"
+    ).innerHTML =
 
-        "DETALLE CONSUMO ENERGÍA CLIMATITZACIÓN\n\n"
+        `<div class="detall-row">
 
-        +
+            <div class="detall-nom">
+                Energía climatitzación plantas 1, 2 y 3
+            </div>
 
-        "Energía climatitzación plantas 1, 2 y 3\n"
+            <div class="detall-valor">
+                ${clima123.toFixed(0)} kWh
+            </div>
 
-        +
+        </div>
 
-        clima123.toFixed(0)
+        <div class="detall-row">
 
-        +
+            <div class="detall-nom">
+                Energía climatitzación plantas 4 y 5
+            </div>
 
-        " kWh\n\n"
+            <div class="detall-valor">
+                ${clima45.toFixed(0)} kWh
+            </div>
 
-        +
+        </div>`;
 
-        "Energía climatitzación plantas 4 y 5\n"
-
-        +
-
-        clima45.toFixed(0)
-
-        +
-
-        " kWh"
-
-    );
+    document.getElementById(
+        "modalClima"
+    ).style.display = "flex";
 
 }
 
+
+function tancarModalClima(){
+
+    document.getElementById(
+        "modalClima"
+    ).style.display = "none";
+
+}
+
+document
+.getElementById("modalClima")
+.addEventListener(
+
+    "click",
+
+    function(e){
+
+        if(
+            e.target.id ===
+            "modalClima"
+        ){
+
+            tancarModalClima();
+
+        }
+
+    }
+
+);
 
 function animate(){
 
