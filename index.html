@@ -344,15 +344,7 @@ canvas{
 }
 
 
-.mix-link{
 
-    cursor:pointer;
-
-    color:#2e7d32;
-
-    font-weight:600;
-
-}
 
 .mix-link:hover{
 
@@ -417,7 +409,11 @@ canvas{
 
         	<span
     id="lblPlantes"
-    class="mix-link">
+    onclick="mostrarDetallPlantes()"
+    style="
+        cursor:pointer;
+        text-decoration:underline;
+    ">
 
     Energía plantas
 
@@ -992,9 +988,22 @@ document.getElementById(
     
 const ara = new Date();
 
-document.getElementById(
-    "fechaActualizacion"
-).innerHTML =
+const fecha =
+    document.getElementById(
+        "fechaActualizacion"
+    );
+
+if(fecha){
+
+    fecha.innerHTML =
+
+        ara.toLocaleDateString("es-ES")
+
+        + "<br>"
+
+        + ara.toLocaleTimeString("es-ES");
+
+}
 
     ara.toLocaleDateString("es-ES")
     + "<br>"
@@ -1428,7 +1437,7 @@ window.addEventListener("resize",()=>{
 
 </script>
 
-<div id="modalPlantes" class="modal">
+<div id="modalPlantes" class="modal-overlay">
 
     <div class="modal-content">
 
