@@ -373,7 +373,28 @@ canvas{
 }
 
 
+.sensor3d{
 
+    position:absolute;
+
+    background:white;
+
+    padding:4px 8px;
+
+    border-radius:6px;
+
+    font-size:12px;
+
+    font-weight:600;
+
+    box-shadow:
+        0 2px 8px rgba(0,0,0,.15);
+
+    pointer-events:none;
+
+    z-index:2000;
+
+}
 
 
 </style>
@@ -774,6 +795,28 @@ let model = null;
 const plantes = new Set();
 
 let graficaMix = null;
+
+const sensors3D = [
+
+    {
+
+        id:"TEMP_P2",
+
+        nom:"Temperatura",
+
+        valor:"24.5 °C",
+
+        posicio:
+            new THREE.Vector3(
+                0,
+                3,
+                0
+            )
+
+    }
+
+];
+
 const container = document.getElementById("visorContainer");
 const canvas = document.getElementById("visor3d");
 
@@ -1968,6 +2011,40 @@ document
     }
 );
 
+function actualitzarEtiquetes(){
+
+    sensors3D.forEach(sensor => {
+
+        const p =
+            sensor.posicio.clone();
+
+        p.project(camera);
+
+        const x =
+            (p.x * 0.5 + 0.5)
+            * window.innerWidth;
+
+        const y =
+            (-p.y * 0.5 + 0.5)
+            * window.innerHeight;
+
+        const div =
+            document.getElementById(
+                "sensor_" + sensor.id
+            );
+
+        if(!div) return;
+
+        div.style.left =
+            x + "px";
+
+        div.style.top =
+            y + "px";
+
+    });
+
+}
+
 
 function animate(){
 
@@ -1975,7 +2052,12 @@ function animate(){
 
     controls.update();
 
-    renderer.render(scene,camera);
+actualitzarEtiquetes();
+
+renderer.render(
+    scene,
+    camera
+);
 
 }
 
@@ -2000,6 +2082,15 @@ window.addEventListener("resize",()=>{
 
 
 </script>
+
+
+<div
+    id="sensor_TEMP_P2"
+    class="sensor3d">
+
+    🌡 24.5 °C
+
+</div>
 
 
 </body>
