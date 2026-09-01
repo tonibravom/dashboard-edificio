@@ -573,6 +573,37 @@ canvas{
 </div>
 
 
+<div id="modalPlantes" class="modal-overlay">
+
+    <div class="modal-content">
+
+        <span id="tancarModalPlantes">
+            &times;
+        </span>
+
+        <div class="modal-header">
+
+    <h3>
+        Energía plantas HOY
+    </h3>
+
+    <button
+        class="modal-close"
+        onclick="tancarModalPlantes()">
+
+        ✕
+
+    </button>
+
+</div>
+
+        <div id="contingutPlantes">
+
+        </div>
+
+    </div>
+
+</div>
 
 <script>
 
@@ -998,9 +1029,7 @@ if(fecha){
         + ara.toLocaleTimeString("es-ES");
 
 }
-    ara.toLocaleDateString("es-ES")
-    + "<br>"
-    + ara.toLocaleTimeString("es-ES");
+    
 
 
     }
@@ -1354,12 +1383,7 @@ function tancarModalClima(){
 
 }
 
-document
-.getElementById("lblPlantes")
-.addEventListener(
-    "click",
-    mostrarDetallPlantes
-);
+onclick="mostrarDetallPlantes()"
 
 document
 .getElementById("modalClima")
@@ -1433,37 +1457,6 @@ window.addEventListener("resize",()=>{
 
 </script>
 
-<div id="modalPlantes" class="modal-overlay">
-
-    <div class="modal-content">
-
-        <span id="tancarModalPlantes">
-            &times;
-        </span>
-
-        <div class="modal-header">
-
-    <h3>
-        Energía plantas HOY
-    </h3>
-
-    <button
-        class="modal-close"
-        onclick="tancarModalPlantes()">
-
-        ✕
-
-    </button>
-
-</div>
-
-        <div id="contingutPlantes">
-
-        </div>
-
-    </div>
-
-</div>
 
 </body>
 </html>
