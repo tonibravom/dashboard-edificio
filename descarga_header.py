@@ -54,6 +54,9 @@ HEADER_SENSORS = {
     "0190_MV_C40_CGEM21_EACTIVA",
     "0190_MV_C50_CGEM21_EACTIVA",
 
+    # local
+    "0190_MV_C3_CGEM21_EACTIVA",
+
     # temperatura / humedad plantas
     "0190_HV_S1_STPRO_TEMP",
     "0190_HV_S1_STPRO_HUM",
