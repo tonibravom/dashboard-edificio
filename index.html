@@ -1390,38 +1390,42 @@ if(fecha){
    ETIQUETES 3D TEMPERATURA
 ========================== */
 
-for(const sensor of sensors3D){*
-    if(!sensor.sensor)
-        co*tinue;
+/* ==========================
+   ETIQUETES 3D TEMPERATURA
+========================== */
+
+for (const sensor of sensors3D) {
+
+    if (!sensor.sensor)
+        continue;
 
     const dades =
-        *wait llegirSensor(
-            "da*os_sensores/"
-            + sensor*sensor
+        await llegirSensor(
+            "datos_sensores/"
+            + sensor.sensor
             + ".json"
-     *  );
+        );
 
     const valor =
-        da*es.values[
+        dades.values[
             dades.values.length - 1
         ];
 
-    const *tiqueta =
-        document.getElem*ntById(
-            "sensor_" + se*sor.id
+    const etiqueta =
+        document.getElementById(
+            "sensor_" + sensor.id
         );
 
-    if(etiqueta*{
+    if (etiqueta) {
 
         etiqueta.innerHTML =
-  *         "🌡 "
-            + Numbe*(valor).toFixed(1)
-            + "*°C";
+            "🌡 "
+            + Number(valor).toFixed(1)
+            + " °C";
 
     }
 
 }
-
     }
     catch(error){
         console.error(
