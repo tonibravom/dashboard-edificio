@@ -387,6 +387,8 @@ canvas{
 
     font-weight:600;
 
+	border:2px solid red;
+
     box-shadow:
         0 2px 8px rgba(0,0,0,.15);
 
@@ -834,6 +836,8 @@ let model = null;
 const plantes = new Set();
 
 let graficaMix = null;
+
+let vistaInicial = null;
 
 const sensors3D = [
     {
@@ -1323,6 +1327,49 @@ model.traverse(function(node){
 
     }
 
+if(planta !== "totes"){
+
+    const box =
+        new THREE.Box3();
+
+    model.traverse(function(node){
+
+        if(
+            node.visible &&
+            node.isMesh
+        ){
+
+            box.expandByObject(node);
+
+        }
+
+    });
+
+    const center =
+        box.getCenter(
+            new THREE.Vector3()
+        );
+
+    const size =
+        box.getSize(
+            new THREE.Vector3()
+        );
+
+    controls.target.copy(center);
+
+    camera.position.set(
+
+        center.x + size.x * 1.5,
+
+        center.y + size.y * 1.5,
+
+        center.z + size.z * 1.5
+
+    );
+
+    controls.update();
+
+}
 });
         scene.add(model);
 
@@ -1337,12 +1384,40 @@ model.traverse(function(node){
 
         controls.target.copy(center);
 
+if(
+    planta === "totes" &&
+    vistaInicial
+){
+
+    camera.position.copy(
+        vistaInicial.camera
+    );
+
+    controls.target.copy(
+        vistaInicial.target
+    );
+
+    controls.update();
+
+    return;
+}
+
+
         camera.position.set(
             center.x + size.x,
             center.y + size.y,
             center.z + size.z
         );
 
+vistaInicial = {
+
+    camera:
+        camera.position.clone(),
+
+    target:
+        controls.target.clone()
+
+};
         controls.update();
 
         detectarPlantes();
