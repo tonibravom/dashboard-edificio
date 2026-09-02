@@ -1419,9 +1419,17 @@ for (const sensor of sensors3D) {
     if (etiqueta) {
 
         etiqueta.innerHTML =
-            "🌡 "
-            + Number(valor).toFixed(1)
-            + " °C";
+
+    "<b>🌡 "
+    + Number(valor).toFixed(1)
+    + " °C</b><br>"
+
+    + sensor.descripcio
+    + "<br>"
+
+    + "<span style='font-size:9px;color:#666'>"
+    + sensor.sensor
+    + "</span>";
 
     }
 
