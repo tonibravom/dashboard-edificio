@@ -840,18 +840,95 @@ let graficaMix = null;
 let vistaInicial = null;
 
 const sensors3D = [
-    {
-        id:"TEMP_P2",
-        nom:"Temperatura",
-        valor:"24.5 °C",
 
-        posicio:
-            new THREE.Vector3(
-                -9.23,
-                17.23,
-                6.40
-            )
+    {
+        id:"EXT",
+        planta:"totes",
+        valor:"🌡 31.5°C",
+        posicio:new THREE.Vector3(
+            0,
+            25,
+            0
+        )
+    },
+
+    {
+        id:"PB",
+        planta:"Planta Baixa",
+        valor:"🌡 24.0°C",
+        posicio:new THREE.Vector3(
+            0,
+            -8,
+            0
+        )
+    },
+
+    {
+        id:"P1",
+        planta:"Planta 1",
+        valor:"🌡 24.4°C",
+        posicio:new THREE.Vector3(
+            0,
+            -2,
+            0
+        )
+    },
+
+    {
+        id:"P2",
+        planta:"Planta 2",
+        valor:"🌡 24.9°C",
+        posicio:new THREE.Vector3(
+            0,
+            3,
+            0
+        )
+    },
+
+    {
+        id:"P3",
+        planta:"Planta 3",
+        valor:"🌡 25.1°C",
+        posicio:new THREE.Vector3(
+            0,
+            11,
+            0
+        )
+    },
+
+    {
+        id:"P4",
+        planta:"Planta 4",
+        valor:"🌡 25.5°C",
+        posicio:new THREE.Vector3(
+            0,
+            16,
+            0
+        )
+    },
+
+    {
+        id:"P5",
+        planta:"Planta 5",
+        valor:"🌡 26.0°C",
+        posicio:new THREE.Vector3(
+            0,
+            19,
+            0
+        )
+    },
+
+    {
+        id:"COB",
+        planta:"Coberta",
+        valor:"🌡 32.0°C",
+        posicio:new THREE.Vector3(
+            0,
+            23,
+            0
+        )
     }
+
 ];
 const container = document.getElementById("visorContainer");
 const canvas = document.getElementById("visor3d");
@@ -1366,6 +1443,21 @@ vistaInicial = {
         generarSelector();
 
         carregarIndicadorsEdifici();
+sensors3D.forEach(sensor => {
+
+    const div =
+        document.getElementById(
+            "sensor_" + sensor.id
+        );
+
+    if(!div) return;
+
+    div.style.display =
+        sensor.planta === "totes"
+        ? "block"
+        : "none";
+
+});
 
         console.log("Model carregat correctament");
     },
@@ -1551,6 +1643,36 @@ model.traverse(function(node){
         box.expandByObject(node);
 
     }
+
+sensors3D.forEach(sensor => {
+
+    const div =
+        document.getElementById(
+            "sensor_" + sensor.id
+        );
+
+    if(!div) return;
+
+    if(
+        planta === "totes"
+    ){
+
+        div.style.display =
+            sensor.planta === "totes"
+            ? "block"
+            : "none";
+
+    }
+    else{
+
+        div.style.display =
+            sensor.planta === planta
+            ? "block"
+            : "none";
+
+    }
+
+});
 
 });
 
@@ -2300,14 +2422,37 @@ window.addEventListener("resize",()=>{
 </script>
 
 
-<div
-    id="sensor_TEMP_P2"
-    class="sensor3d">
-
-    🌡 24.5 °C
-
+<div id="sensor_EXT" class="sensor3d">
+    🌡 31.5°C
 </div>
 
+<div id="sensor_PB" class="sensor3d">
+    🌡 24.0°C
+</div>
+
+<div id="sensor_P1" class="sensor3d">
+    🌡 24.4°C
+</div>
+
+<div id="sensor_P2" class="sensor3d">
+    🌡 24.9°C
+</div>
+
+<div id="sensor_P3" class="sensor3d">
+    🌡 25.1°C
+</div>
+
+<div id="sensor_P4" class="sensor3d">
+    🌡 25.5°C
+</div>
+
+<div id="sensor_P5" class="sensor3d">
+    🌡 26.0°C
+</div>
+
+<div id="sensor_COB" class="sensor3d">
+    🌡 32.0°C
+</div>
 
 </body>
 </html>
