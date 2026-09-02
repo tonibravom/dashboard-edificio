@@ -1609,24 +1609,40 @@ document
 
     /* restaurar vista original */
 
-    if(
-        planta === "totes" &&
-        vistaInicial
-    ){
+   if(
+    planta === "totes" &&
+    vistaInicial
+){
 
-        camera.position.copy(
-            vistaInicial.camera
-        );
+    camera.position.copy(
+        vistaInicial.camera
+    );
 
-        controls.target.copy(
-            vistaInicial.target
-        );
+    controls.target.copy(
+        vistaInicial.target
+    );
 
-        controls.update();
+    controls.update();
 
-        return;
+    sensors3D.forEach(sensor => {
 
-    }
+        const div =
+            document.getElementById(
+                "sensor_" + sensor.id
+            );
+
+        if(!div) return;
+
+        div.style.display =
+            sensor.planta === "totes"
+            ? "block"
+            : "none";
+
+    });
+
+    return;
+
+}
 
     /* zoom a planta */
 
