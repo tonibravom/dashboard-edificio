@@ -1327,49 +1327,6 @@ model.traverse(function(node){
 
     }
 
-if(planta !== "totes"){
-
-    const box =
-        new THREE.Box3();
-
-    model.traverse(function(node){
-
-        if(
-            node.visible &&
-            node.isMesh
-        ){
-
-            box.expandByObject(node);
-
-        }
-
-    });
-
-    const center =
-        box.getCenter(
-            new THREE.Vector3()
-        );
-
-    const size =
-        box.getSize(
-            new THREE.Vector3()
-        );
-
-    controls.target.copy(center);
-
-    camera.position.set(
-
-        center.x + size.x * 1.5,
-
-        center.y + size.y * 1.5,
-
-        center.z + size.z * 1.5
-
-    );
-
-    controls.update();
-
-}
 });
         scene.add(model);
 
@@ -1384,23 +1341,7 @@ if(planta !== "totes"){
 
         controls.target.copy(center);
 
-if(
-    planta === "totes" &&
-    vistaInicial
-){
 
-    camera.position.copy(
-        vistaInicial.camera
-    );
-
-    controls.target.copy(
-        vistaInicial.target
-    );
-
-    controls.update();
-
-    return;
-}
 
 
         camera.position.set(
@@ -1549,14 +1490,11 @@ function generarSelector(){
 
 }
 
-
 document
 .getElementById("selectorPlanta")
 .addEventListener("change",function(){
 
     const planta = this.value;
-
-    
 
     if(!model) return;
 
@@ -1564,24 +1502,84 @@ document
 
         if(!node.isMesh) return;
 
-        if(planta==="totes"){
-
-            node.visible=true;
-            return;
-        }
-
         if(planta === "totes"){
 
-    		node.visible = true;
+            node.visible = true;
 
-		} else {
+        }else{
 
-    		node.visible =
-        	node.userData.planta === planta;
+            node.visible =
+                node.userData.planta === planta;
 
-		}
+        }
 
     });
+
+    /* restaurar vista original */
+
+    if(
+        planta === "totes" &&
+        vistaInicial
+    ){
+
+        camera.position.copy(
+            vistaInicial.camera
+        );
+
+        controls.target.copy(
+            vistaInicial.target
+        );
+
+        controls.update();
+
+        return;
+
+    }
+
+    /* zoom a planta */
+
+const box =
+    new THREE.Box3();
+
+model.traverse(function(node){
+
+    if(
+        node.visible &&
+        node.isMesh
+    ){
+
+        box.expandByObject(node);
+
+    }
+
+});
+
+const center =
+    box.getCenter(
+        new THREE.Vector3()
+    );
+
+const size =
+    box.getSize(
+        new THREE.Vector3()
+    );
+
+controls.target.copy(center);
+
+const dist =
+    Math.max(
+        size.x,
+        size.y,
+        size.z
+    ) * 2;
+
+camera.position.set(
+    center.x + dist,
+    center.y + dist,
+    center.z + dist
+);
+
+controls.update();
 
 });
 
