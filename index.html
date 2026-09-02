@@ -379,25 +379,24 @@ canvas{
 
     background:white;
 
-    padding:4px 8px;
+    padding:6px;
 
     border-radius:6px;
 
-    font-size:12px;
+    font-size:11px;
 
-    font-weight:600;
-
-	border:2px solid red;
+    border:1px solid #ccc;
 
     box-shadow:
         0 2px 8px rgba(0,0,0,.15);
 
-    pointer-events:none;
-
     z-index:2000;
 
-}
+    pointer-events:none;
 
+    min-width:140px;
+
+}
 #coordPanel{
 
     position:absolute;
@@ -864,59 +863,84 @@ const sensors3D = [
     },
 
     {
-        id:"P1",
-        planta:"Planta 1",
-        valor:"🌡 24.4°C",
-        posicio:new THREE.Vector3(
-            -13,
-            9,
-            10
-        )
-    },
+    id:"P1",
+    planta:"Planta 1",
 
-    {
-        id:"P2",
-        planta:"Planta 2",
-        valor:"🌡 24.9°C",
-        posicio:new THREE.Vector3(
-            -11,
-            14,
-            10
-        )
-    },
+    sensor:"0190_HV_S1_STPRO_TEMP",
 
-    {
-        id:"P3",
-        planta:"Planta 3",
-        valor:"🌡 25.1°C",
-        posicio:new THREE.Vector3(
-            -9,
-            17,
-            8
-        )
-    },
+    descripcio:
+        "Tª ambiente Planta 1",
 
-    {
-        id:"P4",
-        planta:"Planta 4",
-        valor:"🌡 25.5°C",
-        posicio:new THREE.Vector3(
-            -10,
-            24,
-            10
-        )
-    },
+    posicio:new THREE.Vector3(
+        -13,
+        9,
+        10
+    )
+},
 
-    {
-        id:"P5",
-        planta:"Planta 5",
-        valor:"🌡 26.0°C",
-        posicio:new THREE.Vector3(
-            -13,
-            23,
-            2
-        )
-    },
+{
+    id:"P2",
+    planta:"Planta 2",
+
+    sensor:"0190_HV_S2_STPRO_TEMP",
+
+    descripcio:
+        "Tª ambiente Planta 2",
+
+    posicio:new THREE.Vector3(
+        -11,
+        14,
+        10
+    )
+},
+
+{
+    id:"P3",
+    planta:"Planta 3",
+
+    sensor:"0190_HV_S3_STPRO_TEMP",
+
+    descripcio:
+        "Tª ambiente Planta 3",
+
+    posicio:new THREE.Vector3(
+        -9,
+        17,
+        8
+    )
+},
+
+{
+    id:"P4",
+    planta:"Planta 4",
+
+    sensor:"0190_HV_S4_STPRO_TEMP",
+
+    descripcio:
+        "Tª ambiente Planta 4",
+
+    posicio:new THREE.Vector3(
+        -10,
+        24,
+        10
+    )
+},
+
+{
+    id:"P5",
+    planta:"Planta 5",
+
+    sensor:"0190_HV_S5_STPRO_TEMP",
+
+    descripcio:
+        "Tª ambiente Planta 5",
+
+    posicio:new THREE.Vector3(
+        -13,
+        23,
+        2
+    )
+}
 
     {
         id:"COB",
@@ -2445,25 +2469,15 @@ window.addEventListener("resize",()=>{
     🌡 24.0°C
 </div>
 
-<div id="sensor_P1" class="sensor3d">
-    🌡 24.4°C
-</div>
+<div id="sensor_P1" class="sensor3d"></div>
 
-<div id="sensor_P2" class="sensor3d">
-    🌡 24.9°C
-</div>
+<div id="sensor_P2" class="sensor3d"></div>
 
-<div id="sensor_P3" class="sensor3d">
-    🌡 25.1°C
-</div>
+<div id="sensor_P3" class="sensor3d"></div>
 
-<div id="sensor_P4" class="sensor3d">
-    🌡 25.5°C
-</div>
+<div id="sensor_P4" class="sensor3d"></div>
 
-<div id="sensor_P5" class="sensor3d">
-    🌡 26.0°C
-</div>
+<div id="sensor_P5" class="sensor3d"></div>
 
 <div id="sensor_COB" class="sensor3d">
     🌡 32.0°C
