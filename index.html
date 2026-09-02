@@ -917,7 +917,7 @@ controls.enableRotate = false;
 
 controls.enablePan = false;
 
-controls.enableZoom = true;
+controls.enableZoom = false;
 
 controls.minDistance = 20;
 
@@ -1313,6 +1313,17 @@ if(loading){
 
         model = gltf.scene;
 
+model.traverse(function(node){
+
+    if(node.isMesh){
+
+        node.material.transparent = true;
+
+        node.material.opacity = 0.15;
+
+    }
+
+});
         scene.add(model);
 
         const box =
