@@ -456,6 +456,9 @@ canvas{
             --
         </div>
 
+        <div id="cmp_ayer" style="font-size:0.85rem; margin-top:6px;">--</div>
+        <div id="cmp_media" style="font-size:0.85rem; margin-top:2px;">--</div>
+
     </div>
 
     <div class="kpi-card">
@@ -1073,6 +1076,42 @@ async function energiaDia(fitxer){
 }
 
 
+async function cargarComparativaEnergia(){
+
+    try{
+
+        const resp = await fetch(
+            `${API_URL}/api/sensores/0190_MV_C1_ASB_ACTIVEE/comparativa`
+        );
+
+        if(!resp.ok) throw new Error("comparativa");
+
+        const d = await resp.json();
+
+        function flechaYColor(pct){
+            if(pct === null || pct === undefined) return {icono:"—", color:"#999"};
+            if(pct > 0) return {icono:"▲", color:"#d9534f"};   // más consumo que la referencia
+            if(pct < 0) return {icono:"▼", color:"#2e7d32"};   // menos consumo que la referencia
+            return {icono:"—", color:"#999"};
+        }
+
+        const ay = flechaYColor(d.vs_ayer_pct);
+        document.getElementById("cmp_ayer").innerHTML =
+            `${ay.icono} ${d.vs_ayer_pct !== null ? Math.abs(d.vs_ayer_pct).toFixed(1) + "%" : "sin datos"} vs ayer a esta hora`;
+        document.getElementById("cmp_ayer").style.color = ay.color;
+
+        const me = flechaYColor(d.vs_media_pct);
+        document.getElementById("cmp_media").innerHTML =
+            `${me.icono} ${d.vs_media_pct !== null ? Math.abs(d.vs_media_pct).toFixed(1) + "%" : "sin datos"} vs media 5 días laborables`;
+        document.getElementById("cmp_media").style.color = me.color;
+
+    }catch(e){
+        console.error("Error cargando comparativa de energía", e);
+    }
+
+}
+
+
 async function carregarIndicadorsEdifici(){
 
     try{
@@ -1398,7 +1437,7 @@ if(fecha){
 ========================== */
 
 /* ==========================
-   ETIQUETES 3D TEMPERATURAb
+   ETIQUETES 3D TEMPERATURA
 ========================== */
 
 for (const sensor of sensors3D) {
@@ -1520,6 +1559,7 @@ vistaInicial = {
         generarSelector();
 
         carregarIndicadorsEdifici();
+        cargarComparativaEnergia();
 sensors3D.forEach(sensor => {
 
     const div =
