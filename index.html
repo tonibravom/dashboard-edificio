@@ -1002,9 +1002,18 @@ const raycaster =
 
 const mouse =
     new THREE.Vector2();
+const API_URL = "https://digital-twin-api-ba28.onrender.com";
+
 async function llegirSensor(path){
 
-    const resposta = await fetch(path);
+    // path llega como "datos_sensores/CODIGO.json"
+    const codigo = path
+        .replace("datos_sensores/", "")
+        .replace(".json", "");
+
+    const resposta = await fetch(
+        `${API_URL}/api/sensores/${codigo}/valores`
+    );
 
     if(!resposta.ok){
         throw new Error(path);
@@ -1013,8 +1022,6 @@ async function llegirSensor(path){
     return await resposta.json();
 
 }
-
-
 
 controls.enableDamping = true;
 
