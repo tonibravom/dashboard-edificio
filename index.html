@@ -3297,7 +3297,9 @@ async function guardarAjustesEdificio(){
         );
 
         alert(
-            "No se han podido guardar los ajustes."
+            "ERROR AL GUARDAR:\n\n"
+	+
+		error.message
         );
 
     }
