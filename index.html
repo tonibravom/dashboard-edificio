@@ -1379,15 +1379,55 @@ async function cargarComparativaEnergia(){
 
     try{
 
-        const resp = await fetch(
-            `${API_URL}/api/sensores/0190_MV_C1_ASB_ACTIVEE/comparativa`
-        );
+       const urlComparativa =
+    `${API_URL}/api/sensores/0190_MV_C1_ASB_ACTIVEE/comparativa`;
 
-        if(!resp.ok){
-            throw new Error("comparativa");
+const maxIntentos = 3;
+
+let resp = null;
+
+for(let intento = 1; intento <= maxIntentos; intento++){
+
+    try{
+
+        resp = await fetch(urlComparativa);
+
+        if(resp.ok){
+            break;
         }
 
-        const d = await resp.json();
+        console.warn(
+            `Error ${resp.status} en comparativa. `
+            + `Intento ${intento}/${maxIntentos}`
+        );
+
+    }catch(error){
+
+        console.warn(
+            `Error de conexión en comparativa. `
+            + `Intento ${intento}/${maxIntentos}`,
+            error
+        );
+
+    }
+
+    if(intento < maxIntentos){
+
+        await new Promise(
+            resolve => setTimeout(resolve, 2000)
+        );
+
+    }
+
+}
+
+if(!resp || !resp.ok){
+
+    throw new Error("comparativa");
+
+}
+
+const d = await resp.json();
 
 if (d.dia_actual_activo === false) {
 
