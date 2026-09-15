@@ -192,7 +192,8 @@
 #btnAjustes{
     position:fixed;
     top:15px;
-    left:15px;
+    right:15px;
+    left:auto;
     z-index:6000;
     width:38px;
     height:38px;
@@ -3225,10 +3226,16 @@ async function guardarAjustesEdificio(){
             );
 
         if(!respuestaHorario.ok){
-            throw new Error(
-                "Error guardando horario"
-            );
-        }
+    const texto = await respuestaHorario.text();
+    console.error(
+        "ERROR HORARIO:",
+        respuestaHorario.status,
+        texto
+    );
+    throw new Error(
+        `Error guardando horario: ${respuestaHorario.status} ${texto}`
+    );
+}
 
 
         /* ==========================
@@ -3262,10 +3269,16 @@ async function guardarAjustesEdificio(){
                 );
 
             if(!respuesta.ok){
-                throw new Error(
-                    "Error guardando calendario"
-                );
-            }
+    const texto = await respuesta.text();
+    console.error(
+        "ERROR CALENDARIO:",
+        respuesta.status,
+        texto
+    );
+    throw new Error(
+        `Error guardando calendario: ${respuesta.status} ${texto}`
+    );
+}
 
         }
 
