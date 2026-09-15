@@ -1383,29 +1383,144 @@ async function cargarComparativaEnergia(){
             `${API_URL}/api/sensores/0190_MV_C1_ASB_ACTIVEE/comparativa`
         );
 
-        if(!resp.ok) throw new Error("comparativa");
+        if(!resp.ok){
+            throw new Error("comparativa");
+        }
 
         const d = await resp.json();
 
+
         function flechaYColor(pct){
-            if(pct === null || pct === undefined) return {icono:"—", color:"#999"};
-            if(pct > 0) return {icono:"▲", color:"#d9534f"};   // más consumo que la referencia
-            if(pct < 0) return {icono:"▼", color:"#2e7d32"};   // menos consumo que la referencia
-            return {icono:"—", color:"#999"};
+
+            if(
+                pct === null ||
+                pct === undefined
+            ){
+                return {
+                    icono:"—",
+                    color:"#999"
+                };
+            }
+
+            if(pct > 0){
+
+                return {
+                    icono:"▲",
+                    color:"#d9534f"
+                };
+
+            }
+
+            if(pct < 0){
+
+                return {
+                    icono:"▼",
+                    color:"#2e7d32"
+                };
+
+            }
+
+            return {
+                icono:"—",
+                color:"#999"
+            };
+
         }
 
-        const ay = flechaYColor(d.vs_ayer_pct);
-        document.getElementById("cmp_ayer").innerHTML =
-            `${ay.icono} ${d.vs_ayer_pct !== null ? Math.abs(d.vs_ayer_pct).toFixed(1) + "%" : "sin datos"} vs ayer a esta hora`;
-        document.getElementById("cmp_ayer").style.color = ay.color;
 
-        const me = flechaYColor(d.vs_media_pct);
-        document.getElementById("cmp_media").innerHTML =
-            `${me.icono} ${d.vs_media_pct !== null ? Math.abs(d.vs_media_pct).toFixed(1) + "%" : "sin datos"} vs media 5 días laborables`;
-        document.getElementById("cmp_media").style.color = me.color;
+        /* ==========================
+           COMPARACIÓN CON AYER
+           ========================== */
+
+        const ay =
+            flechaYColor(
+                d.vs_ayer_pct
+            );
+
+        const textoAyer =
+            d.vs_ayer_pct !== null &&
+            d.vs_ayer_pct !== undefined
+            ? Math.abs(
+                d.vs_ayer_pct
+              ).toFixed(1) + "%"
+            : "sin datos";
+
+        const kwhAyer =
+            d.ayer_misma_hora !== null &&
+            d.ayer_misma_hora !== undefined
+            ? Number(
+                d.ayer_misma_hora
+              ).toFixed(0) + " kWh"
+            : "sin datos";
+
+
+        document.getElementById(
+            "cmp_ayer"
+        ).innerHTML =
+
+            `${ay.icono} `
+            + `${textoAyer} `
+            + `vs ayer a esta hora `
+            + `<span style="color:#56657a;">`
+            + `(${kwhAyer})`
+            + `</span>`;
+
+        document.getElementById(
+            "cmp_ayer"
+        ).style.color =
+            ay.color;
+
+
+        /* ==========================
+           COMPARACIÓN CON MEDIA 5 DÍAS
+           ========================== */
+
+        const me =
+            flechaYColor(
+                d.vs_media_pct
+            );
+
+        const textoMedia =
+            d.vs_media_pct !== null &&
+            d.vs_media_pct !== undefined
+            ? Math.abs(
+                d.vs_media_pct
+              ).toFixed(1) + "%"
+            : "sin datos";
+
+        const kwhMedia =
+            d.media_5_laborables_misma_hora !== null &&
+            d.media_5_laborables_misma_hora !== undefined
+            ? Number(
+                d.media_5_laborables_misma_hora
+              ).toFixed(0) + " kWh"
+            : "sin datos";
+
+
+        document.getElementById(
+            "cmp_media"
+        ).innerHTML =
+
+            `${me.icono} `
+            + `${textoMedia} `
+            + `vs media 5 días laborables `
+            + `<span style="color:#56657a;">`
+            + `(${kwhMedia})`
+            + `</span>`;
+
+        document.getElementById(
+            "cmp_media"
+        ).style.color =
+            me.color;
+
 
     }catch(e){
-        console.error("Error cargando comparativa de energía", e);
+
+        console.error(
+            "Error cargando comparativa de energía",
+            e
+        );
+
     }
 
 }
@@ -3297,9 +3412,7 @@ async function guardarAjustesEdificio(){
         );
 
         alert(
-            "ERROR AL GUARDAR:\n\n"
-	+
-		error.message
+            "No se han podido guardar los ajustes"
         );
 
     }
