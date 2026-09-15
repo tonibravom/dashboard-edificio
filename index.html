@@ -1962,7 +1962,7 @@ loader.load(
 
     "avinyo7edifici.glb",
 
-    function(gltf){
+    async function(gltf){
 
 	console.log("GLB CARREGAT");
 
@@ -2022,9 +2022,11 @@ vistaInicial = {
         detectarPlantes();
 
         generarSelector();
-
+	await
         carregarIndicadorsEdifici();
+	await
         cargarComparativaEnergia();
+
 sensors3D.forEach(sensor => {
 
     const div =
