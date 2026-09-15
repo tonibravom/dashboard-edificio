@@ -18,6 +18,198 @@
 
 <style>
 
+
+.ajustes-content{
+    width:620px;
+    max-width:95vw;
+    max-height:90vh;
+    overflow-y:auto;
+}
+
+.ajustes-seccion{
+    margin-bottom:22px;
+}
+
+.ajustes-seccion h4{
+    color:#14213d;
+    margin-bottom:12px;
+    font-size:14px;
+}
+
+.calendario-cabecera{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:25px;
+    margin-bottom:12px;
+}
+
+.calendario-cabecera button{
+    border:none;
+    background:#f0f3f7;
+    border-radius:6px;
+    width:32px;
+    height:30px;
+    cursor:pointer;
+}
+
+.calendario-cabecera strong{
+    font-size:17px;
+    min-width:60px;
+    text-align:center;
+}
+
+.calendario-leyenda{
+    display:flex;
+    justify-content:center;
+    gap:20px;
+    font-size:11px;
+    color:#56657a;
+    margin-bottom:12px;
+}
+
+.calendario-leyenda span{
+    display:flex;
+    align-items:center;
+    gap:5px;
+}
+
+.leyenda-verde,
+.leyenda-roja{
+    width:12px;
+    height:12px;
+    border-radius:3px;
+    display:inline-block;
+}
+
+.leyenda-verde{
+    background:#4caf50;
+}
+
+.leyenda-roja{
+    background:#e57373;
+}
+
+.cal-mes{
+    margin-bottom:18px;
+}
+
+.cal-mes-titulo{
+    font-size:12px;
+    font-weight:700;
+    color:#56657a;
+    margin-bottom:5px;
+}
+
+.cal-grid{
+    display:grid;
+    grid-template-columns:repeat(7,1fr);
+    gap:3px;
+}
+
+.cal-dia-nombre{
+    text-align:center;
+    font-size:10px;
+    color:#7a8796;
+    padding:4px 0;
+    font-weight:600;
+}
+
+.cal-dia{
+    height:28px;
+    border:none;
+    border-radius:4px;
+    font-size:11px;
+    cursor:pointer;
+}
+
+.cal-dia.activo{
+    background:#4caf50;
+    color:white;
+}
+
+.cal-dia.inactivo{
+    background:#e57373;
+    color:white;
+}
+
+.cal-dia.vacio{
+    background:transparent;
+    cursor:default;
+}
+
+.horario-row{
+    display:flex;
+    gap:20px;
+}
+
+.horario-row label{
+    display:flex;
+    flex-direction:column;
+    gap:5px;
+    color:#56657a;
+    font-size:11px;
+}
+
+.horario-row input{
+    padding:7px;
+    border:1px solid #dfe7ef;
+    border-radius:5px;
+    font-size:13px;
+}
+
+.ajustes-footer{
+    display:flex;
+    justify-content:flex-end;
+    gap:10px;
+    margin-top:20px;
+}
+
+.btn-cancelar-ajustes,
+.btn-guardar-ajustes{
+    padding:8px 16px;
+    border:none;
+    border-radius:6px;
+    cursor:pointer;
+}
+
+.btn-cancelar-ajustes{
+    background:#eceff3;
+    color:#56657a;
+}
+
+.btn-guardar-ajustes{
+    background:#1976d2;
+    color:white;
+}
+
+.btn-guardar-ajustes:hover{
+    background:#1565c0;
+}
+
+
+
+#btnAjustes{
+    position:fixed;
+    top:15px;
+    left:15px;
+    z-index:6000;
+    width:38px;
+    height:38px;
+    border:none;
+    border-radius:50%;
+    background:white;
+    box-shadow:0 2px 8px rgba(0,0,0,.18);
+    font-size:20px;
+    cursor:pointer;
+    color:#14213d;
+}
+
+#btnAjustes:hover{
+    background:#f0f4f8;
+}
+
+
 *{
     margin:0;
     padding:0;
@@ -429,6 +621,12 @@ canvas{
 
 <body>
 
+<button id="btnAjustes"
+	title="Ajustes del edificio"
+	onclick="abrirAjustesEdificio()">
+    ⚙️
+</button>
+
 <div id="panelDatos">
 
 <div id="cabeceraPanel">
@@ -831,6 +1029,106 @@ canvas{
     </div>
 
 </div>
+
+<div id="modalAjustes" class="modal-overlay">
+
+    <div class="modal-content ajustes-content">
+
+        <div class="modal-header">
+            <h3>⚙️ Ajustes del edificio</h3>
+
+            <button
+                class="modal-close"
+                onclick="cerrarAjustesEdificio()">
+                ✕
+            </button>
+        </div>
+
+        <div class="ajustes-seccion">
+
+            <h4>Calendario de actividad</h4>
+
+            <div class="calendario-cabecera">
+
+                <button onclick="cambiarAnio(-1)">
+                    ◀
+                </button>
+
+                <strong id="calendarioAnio">
+                    2026
+                </strong>
+
+                <button onclick="cambiarAnio(1)">
+                    ▶
+                </button>
+
+            </div>
+
+            <div class="calendario-leyenda">
+                <span>
+                    <span class="leyenda-verde"></span>
+                    Día con actividad
+                </span>
+
+                <span>
+                    <span class="leyenda-roja"></span>
+                    Sin actividad
+                </span>
+            </div>
+
+            <div id="calendario"></div>
+
+        </div>
+
+
+        <div class="ajustes-seccion">
+
+            <h4>Horario de actividad</h4>
+
+            <div class="horario-row">
+
+                <label>
+                    Desde
+                    <input
+                        type="time"
+                        id="horaInicioActividad">
+                </label>
+
+                <label>
+                    Hasta
+                    <input
+                        type="time"
+                        id="horaFinActividad">
+                </label>
+
+            </div>
+
+        </div>
+
+
+        <div class="ajustes-footer">
+
+            <button
+                class="btn-cancelar-ajustes"
+                onclick="cerrarAjustesEdificio()">
+                Cancelar
+            </button>
+
+            <button
+                class="btn-guardar-ajustes"
+                onclick="guardarAjustesEdificio()">
+                Guardar
+            </button>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+
+
 
 <script>
 
@@ -2549,6 +2847,451 @@ window.addEventListener("resize",()=>{
     );
 
 });
+
+
+/* =========================================================
+   AJUSTES DEL EDIFICIO
+   ========================================================= */
+
+let anioCalendario = new Date().getFullYear();
+let configuracionEdificio = null;
+let cambiosCalendario = {};
+
+async function abrirAjustesEdificio(){
+
+    document.getElementById("modalAjustes").style.display = "flex";
+
+    try{
+
+        const respuesta = await fetch(
+            `${API_URL}/api/edificios/1/configuracion`
+        );
+
+        if(!respuesta.ok){
+            throw new Error("No se pudo cargar la configuración");
+        }
+
+        configuracionEdificio = await respuesta.json();
+
+        const edificio = configuracionEdificio.edificio;
+
+        document.getElementById(
+            "horaInicioActividad"
+        ).value =
+            (edificio.hora_inicio_actividad || "07:00:00")
+            .substring(0,5);
+
+        document.getElementById(
+            "horaFinActividad"
+        ).value =
+            (edificio.hora_fin_actividad || "20:00:00")
+            .substring(0,5);
+
+        cambiosCalendario = {};
+
+        pintarCalendario();
+
+    }catch(error){
+
+        console.error(
+            "Error cargando ajustes del edificio",
+            error
+        );
+
+        alert(
+            "No se han podido cargar los ajustes del edificio."
+        );
+    }
+}
+
+
+function cerrarAjustesEdificio(){
+
+    document.getElementById(
+        "modalAjustes"
+    ).style.display = "none";
+
+}
+
+
+function cambiarAnio(diferencia){
+
+    const nuevoAnio =
+        anioCalendario + diferencia;
+
+    const anioActual =
+        new Date().getFullYear();
+
+    if(
+        nuevoAnio < anioActual ||
+        nuevoAnio > anioActual + 1
+    ){
+        return;
+    }
+
+    anioCalendario = nuevoAnio;
+
+    pintarCalendario();
+}
+
+
+function esFinDeSemana(fecha){
+
+    const dia = fecha.getDay();
+
+    return dia === 0 || dia === 6;
+}
+
+
+function obtenerEstadoBase(fecha){
+
+    return !esFinDeSemana(fecha);
+
+}
+
+
+function obtenerEstadoDia(fecha){
+
+    const fechaTexto =
+        formatearFecha(fecha);
+
+    if(
+        cambiosCalendario.hasOwnProperty(
+            fechaTexto
+        )
+    ){
+        return cambiosCalendario[
+            fechaTexto
+        ];
+    }
+
+    const excepciones =
+        configuracionEdificio?.calendario || [];
+
+    const excepcion =
+        excepciones.find(
+            d => d.fecha === fechaTexto
+        );
+
+    if(excepcion){
+        return excepcion.activo;
+    }
+
+    return obtenerEstadoBase(fecha);
+}
+
+
+function formatearFecha(fecha){
+
+    const y =
+        fecha.getFullYear();
+
+    const m =
+        String(
+            fecha.getMonth() + 1
+        ).padStart(2,"0");
+
+    const d =
+        String(
+            fecha.getDate()
+        ).padStart(2,"0");
+
+    return `${y}-${m}-${d}`;
+
+}
+
+
+function pintarCalendario(){
+
+    document.getElementById(
+        "calendarioAnio"
+    ).textContent = anioCalendario;
+
+    const contenedor =
+        document.getElementById(
+            "calendario"
+        );
+
+    contenedor.innerHTML = "";
+
+    const nombresMeses = [
+        "Enero",
+        "Febrero",
+        "Marzo",
+        "Abril",
+        "Mayo",
+        "Junio",
+        "Julio",
+        "Agosto",
+        "Septiembre",
+        "Octubre",
+        "Noviembre",
+        "Diciembre"
+    ];
+
+    const nombresDias = [
+        "L",
+        "M",
+        "X",
+        "J",
+        "V",
+        "S",
+        "D"
+    ];
+
+    for(
+        let mes = 0;
+        mes < 12;
+        mes++
+    ){
+
+        const bloque =
+            document.createElement("div");
+
+        bloque.className = "cal-mes";
+
+        const titulo =
+            document.createElement("div");
+
+        titulo.className =
+            "cal-mes-titulo";
+
+        titulo.textContent =
+            nombresMeses[mes];
+
+        bloque.appendChild(titulo);
+
+        const grid =
+            document.createElement("div");
+
+        grid.className =
+            "cal-grid";
+
+        nombresDias.forEach(dia => {
+
+            const div =
+                document.createElement("div");
+
+            div.className =
+                "cal-dia-nombre";
+
+            div.textContent = dia;
+
+            grid.appendChild(div);
+
+        });
+
+        const primerDia =
+            new Date(
+                anioCalendario,
+                mes,
+                1
+            );
+
+        let posicion =
+            primerDia.getDay();
+
+        posicion =
+            posicion === 0
+            ? 6
+            : posicion - 1;
+
+        for(
+            let i = 0;
+            i < posicion;
+            i++
+        ){
+
+            const vacio =
+                document.createElement("div");
+
+            vacio.className =
+                "cal-dia vacio";
+
+            grid.appendChild(vacio);
+
+        }
+
+        const diasMes =
+            new Date(
+                anioCalendario,
+                mes + 1,
+                0
+            ).getDate();
+
+        for(
+            let dia = 1;
+            dia <= diasMes;
+            dia++
+        ){
+
+            const fecha =
+                new Date(
+                    anioCalendario,
+                    mes,
+                    dia
+                );
+
+            const boton =
+                document.createElement("button");
+
+            const activo =
+                obtenerEstadoDia(fecha);
+
+            boton.className =
+                "cal-dia " +
+                (
+                    activo
+                    ? "activo"
+                    : "inactivo"
+                );
+
+            boton.textContent =
+                dia;
+
+            boton.onclick = function(){
+
+                const fechaTexto =
+                    formatearFecha(fecha);
+
+                const nuevoEstado =
+                    !obtenerEstadoDia(fecha);
+
+                cambiosCalendario[
+                    fechaTexto
+                ] = nuevoEstado;
+
+                boton.className =
+                    "cal-dia " +
+                    (
+                        nuevoEstado
+                        ? "activo"
+                        : "inactivo"
+                    );
+
+            };
+
+            grid.appendChild(boton);
+
+        }
+
+        bloque.appendChild(grid);
+
+        contenedor.appendChild(bloque);
+
+    }
+
+}
+
+
+async function guardarAjustesEdificio(){
+
+    try{
+
+        const horaInicio =
+            document.getElementById(
+                "horaInicioActividad"
+            ).value;
+
+        const horaFin =
+            document.getElementById(
+                "horaFinActividad"
+            ).value;
+
+
+        /* ==========================
+           GUARDAR HORARIO
+           ========================== */
+
+        const respuestaHorario =
+            await fetch(
+                `${API_URL}/api/edificios/1/horario`,
+                {
+                    method:"PUT",
+                    headers:{
+                        "Content-Type":
+                            "application/json"
+                    },
+                    body:JSON.stringify({
+
+                        hora_inicio_actividad:
+                            horaInicio,
+
+                        hora_fin_actividad:
+                            horaFin
+
+                    })
+                }
+            );
+
+        if(!respuestaHorario.ok){
+            throw new Error(
+                "Error guardando horario"
+            );
+        }
+
+
+        /* ==========================
+           GUARDAR CAMBIOS CALENDARIO
+           ========================== */
+
+        for(
+            const fecha in cambiosCalendario
+        ){
+
+            const respuesta =
+                await fetch(
+                    `${API_URL}/api/edificios/1/calendario`,
+                    {
+                        method:"PUT",
+                        headers:{
+                            "Content-Type":
+                                "application/json"
+                        },
+                        body:JSON.stringify({
+
+                            fecha:fecha,
+
+                            activo:
+                                cambiosCalendario[
+                                    fecha
+                                ]
+
+                        })
+                    }
+                );
+
+            if(!respuesta.ok){
+                throw new Error(
+                    "Error guardando calendario"
+                );
+            }
+
+        }
+
+
+        alert(
+            "Ajustes guardados correctamente."
+        );
+
+        cerrarAjustesEdificio();
+
+    }catch(error){
+
+        console.error(
+            "Error guardando ajustes",
+            error
+        );
+
+        alert(
+            "No se han podido guardar los ajustes."
+        );
+
+    }
+
+}
+
+
 
 
 </script>
