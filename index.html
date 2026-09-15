@@ -1389,6 +1389,17 @@ async function cargarComparativaEnergia(){
 
         const d = await resp.json();
 
+if (d.dia_actual_activo === false) {
+
+    document.getElementById("cmp_ayer").innerHTML =
+        "Día no laborable — comparativa no disponible";
+
+    document.getElementById("cmp_ayer").style.color = "#777";
+
+    document.getElementById("cmp_media").innerHTML = "";
+
+    return;
+}
 
         function flechaYColor(pct){
 
